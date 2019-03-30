@@ -13,6 +13,7 @@ class Field:
         name,
         value=None,
         original=None,
+        default=None,
         label=None,
         values=None,
         labels=None,
@@ -27,6 +28,7 @@ class Field:
         self.name = name
         self.value = value
         self.original = original
+        self.default = default
         self.label = label
         self.values = values
         self.labels = labels
@@ -70,6 +72,9 @@ class Field:
 
         if self.original is not None:
             out["original"] = self.original
+
+        if self.default is not None:
+            out["default"] = self.default
 
         if self.values is not None:
             out["values"] = self.values

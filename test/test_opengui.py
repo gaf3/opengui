@@ -28,6 +28,7 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.name, "unit")
         self.assertIsNone(field.value)
         self.assertIsNone(field.original)
+        self.assertIsNone(field.default)
         self.assertIsNone(field.label)
         self.assertIsNone(field.values)
         self.assertIsNone(field.style)
@@ -41,6 +42,7 @@ class TestField(unittest.TestCase):
             "unit",
             value="test",
             original="recipe",
+            default="factory",
             label="tribal",
             values="family",
             labels="societal",
@@ -55,6 +57,7 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.name, "unit")
         self.assertEqual(field.value, "test")
         self.assertEqual(field.original, "recipe")
+        self.assertEqual(field.default, "factory")
         self.assertEqual(field.label, "tribal")
         self.assertEqual(field.values, "family")
         self.assertEqual(field.labels, "societal")
@@ -139,6 +142,7 @@ class TestField(unittest.TestCase):
             "unit",
             value="test",
             original="recipe",
+            default="factory",
             label="tribal",
             values="family",
             labels="societal",
@@ -154,6 +158,7 @@ class TestField(unittest.TestCase):
             "name": "unit",
             "value": "test",
             "original": "recipe",
+            "default": "factory",
             "label": "tribal",
             "values": "family",
             "labels": "societal",
