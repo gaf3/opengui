@@ -51,8 +51,8 @@ class Field:
         else:
             self.fields = None
 
-    def append(self, **kwargs):
-        self.fields.append(**kwargs)
+    def append(self, *args, **kwargs):
+        self.fields.append(*args, **kwargs)
 
     def extend(self, fields):
         self.fields.extend(fields)
@@ -153,7 +153,10 @@ class Fields:
 
         self.extend(fields)
 
-    def append(self, **kwargs):
+    def append(self, *args, **kwargs):
+
+        if len(args) == 1:
+            kwargs = args[0]
 
         if "name" not in kwargs:
             raise MissingName("Missing name in %s" % kwargs)

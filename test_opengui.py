@@ -78,7 +78,7 @@ class TestField(unittest.TestCase):
 
         field = opengui.Field(name="a", value={"b": 1}, original={"b": 2}, fields=[])
 
-        field.append(name="b", label="B")
+        field.append({"name": "b", "label": "B"})
 
         self.assertEqual(field.fields[0].name, "b")
         self.assertEqual(field.fields[0].label, "B")
@@ -277,7 +277,7 @@ class TestFields(unittest.TestCase):
 
         fields = opengui.Fields(values={"a": 1}, originals={"a": 2})
 
-        fields.append(name="a", label="A")
+        fields.append({"name": "a", "label": "A"})
 
         self.assertEqual(fields.order[0].name, "a")
         self.assertEqual(fields.order[0].label, "A")
