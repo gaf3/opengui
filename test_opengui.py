@@ -124,6 +124,13 @@ class TestField(unittest.TestCase):
         self.assertEqual(field["f"].errors, ["missing value"])
         self.assertEqual(field["g"].errors, ["missing value"])
 
+    def test___getattr__(self):
+
+        field = opengui.Field("a", value="b", original="c")
+
+        self.assertEqual(field.values, "b")
+        self.assertEqual(field.originals, "c")
+
     def test___iter__(self):
 
         field = opengui.Field(name="a", fields=[

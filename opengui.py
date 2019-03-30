@@ -69,6 +69,12 @@ class Field:
 
         return not self.errors
 
+    def __getattr__(self, attr):
+        if attr == "values":
+            return self.value
+        elif attr == "originals":
+            return self.original
+
     def __iter__(self):
         return iter(self.fields)
 
