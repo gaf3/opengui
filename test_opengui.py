@@ -32,10 +32,12 @@ class TestField(unittest.TestCase):
         self.assertIsNone(field.label)
         self.assertIsNone(field.options)
         self.assertIsNone(field.style)
+        self.assertFalse(field.optional)
         self.assertFalse(field.multi)
         self.assertFalse(field.trigger)
         self.assertFalse(field.readonly)
         self.assertFalse(field.header)
+        self.assertEqual(field.errors, [])
         self.assertIsNone(field.fields)
 
         field = opengui.Field(
@@ -47,10 +49,12 @@ class TestField(unittest.TestCase):
             options="family",
             labels="societal",
             style="flair",
+            optional="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
             header="hr",
+            errors="whoops",
             fields=[{"name": "a"}]
         )
 
@@ -62,10 +66,12 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.options, "family")
         self.assertEqual(field.labels, "societal")
         self.assertEqual(field.style, "flair")
+        self.assertEqual(field.optional, "pants")
         self.assertEqual(field.multi, "functional")
         self.assertEqual(field.trigger, "ed")
         self.assertEqual(field.readonly, "yes")
         self.assertEqual(field.header, "hr")
+        self.assertEqual(field.errors, "whoops")
         self.assertEqual(field.fields[0].name, "a")
 
     def test_append(self):
@@ -79,7 +85,6 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.fields[0].value, 1)
         self.assertEqual(field.fields[0].original, 2)
 
-
     def test_extend(self):
 
         field = opengui.Field(name="a", fields=[])
@@ -92,6 +97,32 @@ class TestField(unittest.TestCase):
         self.assertEqual(len(field.fields), 2)
         self.assertEqual(field.fields[0].name, "b")
         self.assertEqual(field.fields[1].name, "c")
+
+    def test_validate(self):
+
+        field = opengui.Field(name="a")
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["missing value"])
+
+        field = opengui.Field(name="b", optional=True)
+        self.assertTrue(field.validate())
+
+        field = opengui.Field(name="c", options=[1,2])
+        field.value = 0
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["invalid value '0'"])
+
+        field = opengui.Field(name="d", options=[1,2])
+        field.value = 1
+        self.assertTrue(field.validate())
+
+        field = opengui.Field(name="e", fields=[
+            {"name": "f"},
+            {"name": "g"}
+        ])
+        self.assertFalse(field.validate())
+        self.assertEqual(field["f"].errors, ["missing value"])
+        self.assertEqual(field["g"].errors, ["missing value"])
 
     def test___iter__(self):
 
@@ -147,10 +178,12 @@ class TestField(unittest.TestCase):
             options="family",
             labels="societal",
             style="flair",
+            optional="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
             header="hr",
+            errors="whoops",
             fields=[{"name": "a"}]
         )
 
@@ -163,28 +196,30 @@ class TestField(unittest.TestCase):
             "options": "family",
             "labels": "societal",
             "style": "flair",
+            "optional": "pants",
             "multi": "functional",
             "trigger": "ed",
             "readonly": "yes",
             "header": "hr",
+            "errors": "whoops",
             "fields": [{"name": "a"}]
         })
 
 
-class TestForm(unittest.TestCase):
+class TestFields(unittest.TestCase):
 
     maxDiff = None
 
     def test___init__(self):
 
-        form = opengui.Form()
+        fields = opengui.Fields()
 
-        self.assertEqual(form.fields, [])
-        self.assertEqual(form.names, {})
-        self.assertEqual(form.values, {})
-        self.assertEqual(form.originals, {})
+        self.assertEqual(fields.order, [])
+        self.assertEqual(fields.names, {})
+        self.assertEqual(fields.values, {})
+        self.assertEqual(fields.originals, {})
 
-        form = opengui.Form(
+        fields = opengui.Fields(
             values={
                 "a": 1,
                 "b": {
@@ -212,72 +247,101 @@ class TestForm(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(form.values, {
+        self.assertEqual(fields.values, {
             "a": 1,
             "b": {
                 "c": 2
             }
         })
-        self.assertEqual(form.originals, {
+        self.assertEqual(fields.originals, {
             "a": 3,
             "b": {
                 "c": 4
             }
         })
-        self.assertEqual(form.fields[0].name, "a")
-        self.assertEqual(form.names["a"].value, 1)
-        self.assertEqual(form.names["a"].original, 3)
-        self.assertEqual(form.fields[1].name, "b")
-        self.assertEqual(form.names["b"].value, {
+        self.assertEqual(fields.order[0].name, "a")
+        self.assertEqual(fields.names["a"].value, 1)
+        self.assertEqual(fields.names["a"].original, 3)
+        self.assertEqual(fields.order[1].name, "b")
+        self.assertEqual(fields.names["b"].value, {
             "c": 2
         })
-        self.assertEqual(form.names["b"].original, {
+        self.assertEqual(fields.names["b"].original, {
             "c": 4
         })
-        self.assertEqual(form.fields[1].fields[0].name, "c")
-        self.assertEqual(form.names["b"].fields.names["c"].value, 2)
-        self.assertEqual(form.names["b"].fields.names["c"].original, 4)
+        self.assertEqual(fields.order[1].fields[0].name, "c")
+        self.assertEqual(fields.names["b"].fields.names["c"].value, 2)
+        self.assertEqual(fields.names["b"].fields.names["c"].original, 4)
 
     def test_append(self):
 
-        form = opengui.Form(values={"a": 1}, originals={"a": 2})
+        fields = opengui.Fields(values={"a": 1}, originals={"a": 2})
 
-        form.append(name="a", label="A")
+        fields.append(name="a", label="A")
 
-        self.assertEqual(form.fields[0].name, "a")
-        self.assertEqual(form.fields[0].label, "A")
-        self.assertEqual(form.fields[0].value, 1)
-        self.assertEqual(form.fields[0].original, 2)
-        self.assertEqual(form.names["a"].label, "A")
+        self.assertEqual(fields.order[0].name, "a")
+        self.assertEqual(fields.order[0].label, "A")
+        self.assertEqual(fields.order[0].value, 1)
+        self.assertEqual(fields.order[0].original, 2)
+        self.assertEqual(fields.names["a"].label, "A")
 
-        self.assertRaisesRegex(opengui.MissingName, "Missing name in {}", form.append)
-        self.assertRaisesRegex(opengui.DuplicateName, "Name a exists", form.append, name="a")
+        self.assertRaisesRegex(opengui.MissingName, "Missing name in {}", fields.append)
+        self.assertRaisesRegex(opengui.DuplicateName, "Name a exists", fields.append, name="a")
 
     def test_extend(self):
 
-        form = opengui.Form()
+        fields = opengui.Fields()
 
-        form.extend([
+        fields.extend([
             {"name": "a"},
             {"name": "b"}
         ])
 
-        self.assertEqual(len(form.fields), 2)
-        self.assertEqual(form.fields[0].name, "a")
-        self.assertEqual(form.fields[1].name, "b")
+        self.assertEqual(len(fields.order), 2)
+        self.assertEqual(fields.order[0].name, "a")
+        self.assertEqual(fields.order[1].name, "b")
+
+    def test_validate(self):
+
+        fields = opengui.Fields(values={"e": 1}, fields=[
+            {"name": "f"},
+            {"name": "g"}
+        ])
+        self.assertFalse(fields.validate())
+        self.assertEqual(fields.errors, ["unknown field 'e'"])
+        self.assertEqual(fields["f"].errors, ["missing value"])
+        self.assertEqual(fields["g"].errors, ["missing value"])
+
+        fields = opengui.Fields(values={"e": 1})
+        self.assertFalse(fields.validate())
+        self.assertEqual(fields.errors, ["unknown field 'e'"])
+
+        fields = opengui.Fields(fields=[
+            {"name": "f"},
+            {"name": "g"}
+        ])
+        self.assertFalse(fields.validate())
+        self.assertEqual(fields["f"].errors, ["missing value"])
+        self.assertEqual(fields["g"].errors, ["missing value"])
+
+        fields = opengui.Fields(values={"f": 1, "g": 2}, fields=[
+            {"name": "f"},
+            {"name": "g"}
+        ])
+        self.assertTrue(fields.validate())
 
     def test___iter__(self):
 
-        form = opengui.Form(fields=[
+        fields = opengui.Fields(fields=[
             {"name": "a"},
             {"name": "b"}
         ])
 
-        self.assertEqual([field.name for field in form], ["a", "b"])
+        self.assertEqual([field.name for field in fields], ["a", "b"])
 
     def test____getitem__(self):
 
-        form = opengui.Form(fields=[
+        fields = opengui.Fields(fields=[
             {"name": "a"},
             {
                 "name": "b",
@@ -289,28 +353,28 @@ class TestForm(unittest.TestCase):
             }
         ])
 
-        self.assertEqual(form[0].name, "a")
-        self.assertEqual(form[1][0].name, "c")
-        self.assertEqual(form["a"].name, "a")
-        self.assertEqual(form["b"]["c"].name, "c")
+        self.assertEqual(fields[0].name, "a")
+        self.assertEqual(fields[1][0].name, "c")
+        self.assertEqual(fields["a"].name, "a")
+        self.assertEqual(fields["b"]["c"].name, "c")
 
     def test____len__(self):
 
-        form = opengui.Form(fields=[
+        fields = opengui.Fields(fields=[
             {"name": "a"},
             {"name": "b"}
         ])
 
-        self.assertEqual(len(form), 2)
+        self.assertEqual(len(fields), 2)
 
     def test_to_list(self):
 
-        form = opengui.Form(fields=[
+        fields = opengui.Fields(fields=[
             {"name": "a"},
             {"name": "b"}
         ])
 
-        self.assertEqual(form.to_list(), [
+        self.assertEqual(fields.to_list(), [
             {"name": "a"},
             {"name": "b"}
         ])

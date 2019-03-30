@@ -18,10 +18,12 @@ class Field:
         options=None,
         labels=None,
         style=None,
+        optional=False,
         multi=False,
         trigger=False,
         readonly=False,
         header=False,
+        errors=None,
         fields=None
     ):
 
@@ -34,12 +36,18 @@ class Field:
         self.labels = labels
         self.multi = multi
         self.style = style
+        self.optional = optional
         self.trigger = trigger
         self.readonly = readonly
         self.header = header
 
+        if errors is None:
+            errors = []
+
+        self.errors = errors
+
         if fields is not None:
-            self.fields = Form(values=self.value, originals=self.original, fields=fields)
+            self.fields = Fields(values=self.value, originals=self.original, fields=fields)
         else:
             self.fields = None
 
@@ -48,6 +56,18 @@ class Field:
 
     def extend(self, fields):
         self.fields.extend(fields)
+
+    def validate(self):
+
+        if self.fields:
+            return self.fields.validate()
+
+        if self.value is None and not self.optional:
+            self.errors.append("missing value")
+        elif self.options and self.value not in self.options:
+            self.errors.append("invalid value '%s'" % self.value)
+
+        return not self.errors
 
     def __iter__(self):
         return iter(self.fields)
@@ -85,6 +105,9 @@ class Field:
         if self.style is not None:
             out["style"] = self.style
 
+        if self.optional:
+            out["optional"] = self.optional
+
         if self.multi:
             out["multi"] = self.multi
 
@@ -97,15 +120,18 @@ class Field:
         if self.header:  
             out["header"] = self.header
 
+        if self.errors:  
+            out["errors"] = self.errors
+
         if self.fields:
             out["fields"] = self.fields.to_list()
 
         return out
 
 
-class Form:
+class Fields:
 
-    def __init__(self, values=None, originals=None, fields=None):
+    def __init__(self, values=None, originals=None, fields=None, errors=None):
 
         if values is None:
             values = {}
@@ -113,10 +139,14 @@ class Form:
         if originals is None:
             originals = {}
 
-        self.fields = []
+        if errors is None:
+            errors = []
+
+        self.order = []
         self.names = {}
         self.values = values
         self.originals = originals
+        self.errors = errors
 
         if fields is None:
             fields = []
@@ -139,7 +169,7 @@ class Form:
 
         field = Field(**kwargs)
 
-        self.fields.append(field)
+        self.order.append(field)
         self.names[field.name] = field
 
     def extend(self, fields):
@@ -147,24 +177,37 @@ class Form:
         for field in fields:
             self.append(**field)
 
+    def validate(self):
+
+        for name in self.values:
+            if name not in self.names:
+                self.errors.append("unknown field '%s'" % name)
+
+        valid = not self.errors
+
+        for field in self.order:
+            valid = field.validate() and valid
+
+        return valid
+
     def __iter__(self):
-        return iter(self.fields)
+        return iter(self.order)
 
     def __getitem__(self, key):
 
         if isinstance(key, int):
-            return self.fields[key]
+            return self.order[key]
         elif isinstance(key, str):
             return self.names[key]
 
     def __len__(self):
-        return len(self.fields)
+        return len(self.order)
 
     def to_list(self):
 
         out = []
 
-        for field in self.fields:
+        for field in self.order:
             out.append(field.to_dict())
 
         return out
