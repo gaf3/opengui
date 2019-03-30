@@ -15,7 +15,7 @@ class Field:
         original=None,
         default=None,
         label=None,
-        values=None,
+        options=None,
         labels=None,
         style=None,
         multi=False,
@@ -30,7 +30,7 @@ class Field:
         self.original = original
         self.default = default
         self.label = label
-        self.values = values
+        self.options = options
         self.labels = labels
         self.multi = multi
         self.style = style
@@ -76,8 +76,8 @@ class Field:
         if self.default is not None:
             out["default"] = self.default
 
-        if self.values is not None:
-            out["values"] = self.values
+        if self.options is not None:
+            out["options"] = self.options
 
         if self.labels is not None:
             out["labels"] = self.labels
