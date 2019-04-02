@@ -64,7 +64,7 @@ class Field:
 
         if self.value is None and not self.optional:
             self.errors.append("missing value")
-        elif self.options and self.value not in self.options:
+        elif self.value is not None and self.options and self.value not in self.options:
             self.errors.append("invalid value '%s'" % self.value)
 
         return not self.errors

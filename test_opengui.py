@@ -112,6 +112,9 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["invalid value '0'"])
 
+        field = opengui.Field(name="c", options=[1,2], optional=True)
+        self.assertTrue(field.validate())
+
         field = opengui.Field(name="d", options=[1,2])
         field.value = 1
         self.assertTrue(field.validate())
