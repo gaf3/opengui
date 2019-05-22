@@ -17,5 +17,5 @@ test:
 	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
 
 tag:
-	git tag -a "v$(VERSION)" -m "Version $(VERSION)"
+	-git tag -a "v$(VERSION)" -m "Version $(VERSION)"
 	git push origin --tags
