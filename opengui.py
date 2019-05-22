@@ -62,7 +62,11 @@ class Field:
         if self.fields:
             return self.fields.validate()
 
-        if self.value is None and not self.optional:
+        if self.value is None and self.default:
+            self.value = self.default
+        if self.value is None and self.readonly:
+            self.value = self.original
+        elif self.value is None and not self.optional:
             self.errors.append("missing value")
         elif self.value is not None and self.options and self.value not in self.options:
             self.errors.append("invalid value '%s'" % self.value)

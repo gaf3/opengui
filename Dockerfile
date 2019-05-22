@@ -8,9 +8,8 @@ ADD requirements.txt .
 
 RUN pip install -r requirements.txt
 
-ADD lib lib
-ADD test test
-
+ADD opengui.py .
+ADD test_opengui.py .
 ADD setup.py .
 
 ENV PYTHONPATH "/opt/gaf3/lib:${PYTHONPATH}"

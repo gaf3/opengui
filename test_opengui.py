@@ -104,7 +104,15 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["missing value"])
 
-        field = opengui.Field(name="b", optional=True)
+        field = opengui.Field(name="b", default=2)
+        self.assertTrue(field.validate())
+        self.assertEqual(field.value, 2)
+
+        field = opengui.Field(name="b", readonly=True, original=2)
+        self.assertTrue(field.validate())
+        self.assertEqual(field.value, 2)
+
+        field = opengui.Field(name="b", readonly=True)
         self.assertTrue(field.validate())
 
         field = opengui.Field(name="c", options=[1,2])
