@@ -1,7 +1,7 @@
 IMAGE=opengui
-VERSION=0.2
+VERSION=0.3
 ACCOUNT=gaf3
-VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/lib/opengui.py \
+VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/opengui.py \
 		-v ${PWD}/test_opengui.py:/opt/gaf3/test_opengui.py \
 		-v ${PWD}/setup.py:/opt/gaf3/setup.py
 
