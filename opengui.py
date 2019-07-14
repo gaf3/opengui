@@ -8,21 +8,33 @@ class DuplicateName(Exception):
 
 class Field:
 
+    ATTRIBUTES = [
+        "name",
+        "value",
+        "original",
+        "default",
+        "options",
+        "optional",
+        "multi",
+        "trigger",
+        "readonly",
+        "content",
+        "errors",
+        "fields"
+    ]
+
     def __init__(
         self,
         name,
         value=None,
         original=None,
         default=None,
-        label=None,
         options=None,
-        labels=None,
-        style=None,
         optional=False,
         multi=False,
         trigger=False,
         readonly=False,
-        header=False,
+        content=None,
         errors=None,
         fields=None
     ):
@@ -31,15 +43,16 @@ class Field:
         self.value = value
         self.original = original
         self.default = default
-        self.label = label
         self.options = options
-        self.labels = labels
-        self.multi = multi
-        self.style = style
         self.optional = optional
+        self.multi = multi
         self.trigger = trigger
         self.readonly = readonly
-        self.header = header
+
+        if content is None:
+            content = {}
+
+        self.content = content
 
         if errors is None:
             errors = []
@@ -52,6 +65,7 @@ class Field:
             self.fields = None
 
     def append(self, *args, **kwargs):
+        
         self.fields.append(*args, **kwargs)
 
     def extend(self, fields):
@@ -94,9 +108,6 @@ class Field:
             "name": self.name
         }
 
-        if self.label is not None:
-            out["label"] = self.label
-
         if self.value is not None:
             out["value"] = self.value
 
@@ -108,12 +119,6 @@ class Field:
 
         if self.options is not None:
             out["options"] = self.options
-
-        if self.labels is not None:
-            out["labels"] = self.labels
-
-        if self.style is not None:
-            out["style"] = self.style
 
         if self.optional:
             out["optional"] = self.optional
@@ -127,8 +132,8 @@ class Field:
         if self.readonly:  
             out["readonly"] = self.readonly
 
-        if self.header:  
-            out["header"] = self.header
+        if self.content:
+            out.update({key: value for key, value in self.content.items() if key not in self.ATTRIBUTES})
 
         if self.errors:  
             out["errors"] = self.errors
@@ -180,7 +185,17 @@ class Fields:
         if "original" not in kwargs and kwargs["name"] in self.originals:
             kwargs["original"] = self.originals[kwargs["name"]]
 
-        field = Field(**kwargs)
+        attributes = {}
+
+        attributes["content"] = kwargs.get("content", {})
+
+        for key,value in kwargs.items():
+            if key in Field.ATTRIBUTES:
+                attributes[key] = value
+            else:
+                attributes["content"][key] = value
+
+        field = Field(**attributes)
 
         self.order.append(field)
         self.names[field.name] = field

@@ -29,14 +29,12 @@ class TestField(unittest.TestCase):
         self.assertIsNone(field.value)
         self.assertIsNone(field.original)
         self.assertIsNone(field.default)
-        self.assertIsNone(field.label)
         self.assertIsNone(field.options)
-        self.assertIsNone(field.style)
         self.assertFalse(field.optional)
         self.assertFalse(field.multi)
         self.assertFalse(field.trigger)
         self.assertFalse(field.readonly)
-        self.assertFalse(field.header)
+        self.assertEqual(field.content, {})
         self.assertEqual(field.errors, [])
         self.assertIsNone(field.fields)
 
@@ -45,15 +43,12 @@ class TestField(unittest.TestCase):
             value="test",
             original="recipe",
             default="factory",
-            label="tribal",
             options="family",
-            labels="societal",
-            style="flair",
             optional="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
-            header="hr",
+            content={"a": 1},
             errors="whoops",
             fields=[{"name": "a"}]
         )
@@ -62,15 +57,12 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.value, "test")
         self.assertEqual(field.original, "recipe")
         self.assertEqual(field.default, "factory")
-        self.assertEqual(field.label, "tribal")
         self.assertEqual(field.options, "family")
-        self.assertEqual(field.labels, "societal")
-        self.assertEqual(field.style, "flair")
         self.assertEqual(field.optional, "pants")
         self.assertEqual(field.multi, "functional")
         self.assertEqual(field.trigger, "ed")
         self.assertEqual(field.readonly, "yes")
-        self.assertEqual(field.header, "hr")
+        self.assertEqual(field.content, {"a": 1})
         self.assertEqual(field.errors, "whoops")
         self.assertEqual(field.fields[0].name, "a")
 
@@ -81,9 +73,9 @@ class TestField(unittest.TestCase):
         field.append({"name": "b", "label": "B"})
 
         self.assertEqual(field.fields[0].name, "b")
-        self.assertEqual(field.fields[0].label, "B")
         self.assertEqual(field.fields[0].value, 1)
         self.assertEqual(field.fields[0].original, 2)
+        self.assertEqual(field.fields[0].content, {"label": "B"})
 
     def test_extend(self):
 
@@ -192,15 +184,12 @@ class TestField(unittest.TestCase):
             value="test",
             original="recipe",
             default="factory",
-            label="tribal",
             options="family",
-            labels="societal",
-            style="flair",
             optional="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
-            header="hr",
+            content={"name": "nope", "label": "yep"},
             errors="whoops",
             fields=[{"name": "a"}]
         )
@@ -210,15 +199,12 @@ class TestField(unittest.TestCase):
             "value": "test",
             "original": "recipe",
             "default": "factory",
-            "label": "tribal",
             "options": "family",
-            "labels": "societal",
-            "style": "flair",
             "optional": "pants",
             "multi": "functional",
             "trigger": "ed",
             "readonly": "yes",
-            "header": "hr",
+            "label": "yep",
             "errors": "whoops",
             "fields": [{"name": "a"}]
         })
@@ -298,10 +284,10 @@ class TestFields(unittest.TestCase):
         fields.append({"name": "a", "label": "A"})
 
         self.assertEqual(fields.order[0].name, "a")
-        self.assertEqual(fields.order[0].label, "A")
+        self.assertEqual(fields.order[0].content["label"], "A")
         self.assertEqual(fields.order[0].value, 1)
         self.assertEqual(fields.order[0].original, 2)
-        self.assertEqual(fields.names["a"].label, "A")
+        self.assertEqual(fields.names["a"].content["label"], "A")
 
         self.assertRaisesRegex(opengui.MissingName, "Missing name in {}", fields.append)
         self.assertRaisesRegex(opengui.DuplicateName, "Name a exists", fields.append, name="a")
@@ -388,11 +374,11 @@ class TestFields(unittest.TestCase):
     def test_to_list(self):
 
         fields = opengui.Fields(fields=[
-            {"name": "a"},
+            {"name": "a", "label": "A"},
             {"name": "b"}
         ])
 
         self.assertEqual(fields.to_list(), [
-            {"name": "a"},
+            {"name": "a", "label": "A"},
             {"name": "b"}
         ])
