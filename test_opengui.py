@@ -312,6 +312,7 @@ class TestFields(unittest.TestCase):
             {"name": "g"}
         ])
         self.assertFalse(fields.validate())
+        self.assertFalse(fields.valid)
         self.assertEqual(fields.errors, ["unknown field 'e'"])
         self.assertEqual(fields["f"].errors, ["missing value"])
         self.assertEqual(fields["g"].errors, ["missing value"])
@@ -333,6 +334,7 @@ class TestFields(unittest.TestCase):
             {"name": "g"}
         ])
         self.assertTrue(fields.validate())
+        self.assertTrue(fields.valid)
 
     def test___iter__(self):
 
@@ -382,3 +384,28 @@ class TestFields(unittest.TestCase):
             {"name": "a", "label": "A"},
             {"name": "b"}
         ])
+
+
+    def test_to_dict(self):
+
+        fields = opengui.Fields(
+            fields=[
+                {"name": "a", "label": "A"},
+                {"name": "b"}
+            ],
+            errors=['boo'],
+            valid=True,
+            ready=False
+        )
+
+        self.assertEqual(fields.to_dict(), {
+            "fields": [
+                {"name": "a", "label": "A"},
+                {"name": "b"}
+            ],
+            "errors": [
+                "boo"
+            ],
+            "valid": True,
+            "ready": False
+        })

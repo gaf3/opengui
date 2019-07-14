@@ -146,7 +146,7 @@ class Field:
 
 class Fields:
 
-    def __init__(self, values=None, originals=None, fields=None, errors=None):
+    def __init__(self, values=None, originals=None, fields=None, errors=None, valid=None, ready=None):
 
         if values is None:
             values = {}
@@ -162,6 +162,8 @@ class Fields:
         self.values = values
         self.originals = originals
         self.errors = errors
+        self.valid = valid
+        self.ready = ready
 
         if fields is None:
             fields = []
@@ -211,12 +213,12 @@ class Fields:
             if name not in self.names:
                 self.errors.append("unknown field '%s'" % name)
 
-        valid = not self.errors
+        self.valid = not self.errors
 
         for field in self.order:
-            valid = field.validate() and valid
+            self.valid = field.validate() and self.valid
 
-        return valid
+        return self.valid
 
     def __iter__(self):
         return iter(self.order)
@@ -237,5 +239,22 @@ class Fields:
 
         for field in self.order:
             out.append(field.to_dict())
+
+        return out
+
+    def to_dict(self):
+
+        out = {
+            "fields": self.to_list()
+        }
+
+        if self.errors is not None:
+            out["errors"] = self.errors
+
+        if self.valid is not None:
+            out["valid"] = self.valid
+
+        if self.ready is not None:
+            out["ready"] = self.ready
 
         return out
