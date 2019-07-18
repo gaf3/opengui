@@ -65,7 +65,7 @@ class Field:
             self.fields = None
 
     def append(self, *args, **kwargs):
-        
+
         self.fields.append(*args, **kwargs)
 
     def extend(self, fields):
@@ -82,6 +82,15 @@ class Field:
             self.value = self.original
         elif self.value is None and not self.optional:
             self.errors.append("missing value")
+        elif self.value is not None and self.multi and not isinstance(self.value,list):
+            self.errors.append("multi requires list")
+        elif self.value is not None and self.multi:
+            invalid = []
+            for value in self.values:
+                if value not in self.options:
+                    invalid.append(value)
+            if invalid:
+                self.errors.append("invalid values %s" % invalid)
         elif self.value is not None and self.options and self.value not in self.options:
             self.errors.append("invalid value '%s'" % self.value)
 
@@ -126,16 +135,16 @@ class Field:
         if self.multi:
             out["multi"] = self.multi
 
-        if self.trigger:  
+        if self.trigger:
             out["trigger"] = self.trigger
 
-        if self.readonly:  
+        if self.readonly:
             out["readonly"] = self.readonly
 
         if self.content:
             out.update({key: value for key, value in self.content.items() if key not in self.ATTRIBUTES})
 
-        if self.errors:  
+        if self.errors:
             out["errors"] = self.errors
 
         if self.fields:

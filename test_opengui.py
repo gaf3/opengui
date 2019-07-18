@@ -96,6 +96,14 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["missing value"])
 
+        field = opengui.Field(name="a", multi=True)
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["missing value"])
+
+        field = opengui.Field(name="a", multi=True, value=0)
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["multi requires list"])
+
         field = opengui.Field(name="b", default=2)
         self.assertTrue(field.validate())
         self.assertEqual(field.value, 2)
@@ -111,6 +119,11 @@ class TestField(unittest.TestCase):
         field.value = 0
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["invalid value '0'"])
+
+        field = opengui.Field(name="c", options=[1,2], multi=True)
+        field.value = [0]
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["invalid values [0]"])
 
         field = opengui.Field(name="c", options=[1,2], optional=True)
         self.assertTrue(field.validate())
@@ -229,13 +242,13 @@ class TestFields(unittest.TestCase):
                 "b": {
                     "c": 2
                 }
-            }, 
+            },
             originals={
                 "a": 3,
                 "b": {
                     "c": 4
                 }
-            }, 
+            },
             fields=[
                 {
                     "name": "a"
