@@ -1,5 +1,5 @@
 IMAGE=opengui
-VERSION=0.5
+VERSION=0.6
 ACCOUNT=gaf3
 VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/opengui.py \
 		-v ${PWD}/test_opengui.py:/opt/gaf3/test_opengui.py \

@@ -1,3 +1,4 @@
+import re
 
 class MissingName(Exception):
     pass
@@ -18,6 +19,7 @@ class Field:
         "multi",
         "trigger",
         "readonly",
+        "validation",
         "content",
         "errors",
         "fields"
@@ -34,6 +36,7 @@ class Field:
         multi=False,
         trigger=False,
         readonly=False,
+        validation=None,
         content=None,
         errors=None,
         fields=None
@@ -48,6 +51,7 @@ class Field:
         self.multi = multi
         self.trigger = trigger
         self.readonly = readonly
+        self.validation = validation
 
         if content is None:
             content = {}
@@ -93,6 +97,13 @@ class Field:
                 self.errors.append("invalid values %s" % invalid)
         elif self.value is not None and self.options and self.value not in self.options:
             self.errors.append("invalid value '%s'" % self.value)
+
+        if self.validation:
+            if self.value is not None and isinstance(self.validation, str):
+                if not re.match(self.validation, self.value):
+                    self.errors.append("must match '%s'" % self.validation)
+            else:
+                self.validation(self)
 
         return not self.errors
 
@@ -155,7 +166,7 @@ class Field:
 
 class Fields:
 
-    def __init__(self, values=None, originals=None, fields=None, errors=None, valid=None, ready=None):
+    def __init__(self, values=None, originals=None, fields=None, errors=None, valid=None, validation=None, ready=None):
 
         if values is None:
             values = {}
@@ -172,6 +183,7 @@ class Fields:
         self.originals = originals
         self.errors = errors
         self.valid = valid
+        self.validation = validation
         self.ready = ready
 
         if fields is None:
@@ -226,6 +238,9 @@ class Fields:
 
         for field in self.order:
             self.valid = field.validate() and self.valid
+
+        if self.validation is not None:
+            self.validation(self)
 
         return self.valid
 

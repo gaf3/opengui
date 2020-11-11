@@ -48,6 +48,7 @@ class TestField(unittest.TestCase):
             multi="functional",
             trigger="ed",
             readonly="yes",
+            validation="thyself",
             content={"a": 1},
             errors="whoops",
             fields=[{"name": "a"}]
@@ -62,6 +63,7 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.multi, "functional")
         self.assertEqual(field.trigger, "ed")
         self.assertEqual(field.readonly, "yes")
+        self.assertEqual(field.validation, "thyself")
         self.assertEqual(field.content, {"a": 1})
         self.assertEqual(field.errors, "whoops")
         self.assertEqual(field.fields[0].name, "a")
@@ -139,6 +141,25 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field["f"].errors, ["missing value"])
         self.assertEqual(field["g"].errors, ["missing value"])
+
+        field = opengui.Field(name="h", validation="yep")
+        field.value = "yepyep"
+        self.assertTrue(field.validate())
+        field.value = "nope"
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["must match 'yep'"])
+
+        def sure(field):
+
+            if field.value != "sure":
+                field.errors.append("not sure")
+
+        field = opengui.Field(name="i", validation=sure)
+        field.value = "sure"
+        self.assertTrue(field.validate())
+        field.value = "nope"
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["not sure"])
 
     def test___getattr__(self):
 
@@ -261,7 +282,8 @@ class TestFields(unittest.TestCase):
                         }
                     ]
                 }
-            ]
+            ],
+            validation="thyself"
         )
 
         self.assertEqual(fields.values, {
@@ -289,6 +311,7 @@ class TestFields(unittest.TestCase):
         self.assertEqual(fields.order[1].fields[0].name, "c")
         self.assertEqual(fields.names["b"].fields.names["c"].value, 2)
         self.assertEqual(fields.names["b"].fields.names["c"].original, 4)
+        self.assertEqual(fields.validation, "thyself")
 
     def test_append(self):
 
@@ -348,6 +371,20 @@ class TestFields(unittest.TestCase):
         ])
         self.assertTrue(fields.validate())
         self.assertTrue(fields.valid)
+
+        def unequal(fields):
+
+            if fields["h"].value == fields["i"].value:
+                fields.valid = False
+                fields.errors.append("h and i must be unequal")
+
+        fields = opengui.Fields(values={"h": 1, "i": 1}, fields=[
+            {"name": "h"},
+            {"name": "i"}
+        ], validation=unequal)
+        self.assertFalse(fields.validate())
+        self.assertFalse(fields.valid)
+        self.assertEqual(fields.errors, ["h and i must be unequal"])
 
     def test___iter__(self):
 
