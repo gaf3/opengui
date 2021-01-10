@@ -7,9 +7,7 @@ WORKDIR /opt/service
 COPY dep dep
 COPY requirements.txt .
 
-RUN apk add --no-cache --virtual .pip-deps git \
-    && pip install --no-cache-dir dep/opengui -r requirements.txt \
-    && apk del --no-network .pip-deps \
+RUN pip install --no-cache-dir dep/opengui -r requirements.txt \
 	&& find /usr/local -depth \
 		\( \
 			\( -type d -a \( -name test -o -name tests -o -name idle_test \) \) \

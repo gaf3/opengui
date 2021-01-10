@@ -6,8 +6,6 @@ DRApp.load = function (name) {
 
 $.ajaxPrefilter(function(options, originalOptions, jqXHR) {});
 
-DRApp.group = $.ajax({url: "/api/group", async: false}).responseJSON.group;
-
 DRApp.controller("Base",null,{
     rest: function(type,url,data) {
         var response = $.ajax({
@@ -24,35 +22,11 @@ DRApp.controller("Base",null,{
         }
         return response.responseJSON;
     },
-    home: function() {
-        this.application.render(this.it);
-    },
-    url: function(params) {
-        if (params && Object.keys(params).length) {
-            return "/api/" + this.singular + "?" + $.param(params);
-        } else {
-            return "/api/" + this.singular;
-        }
-    },
-    id_url: function() {
-        return this.url() + "/" + this.application.current.path.id;
-    },
-    route: function(action, id) {
-        if (id) {
-            this.application.go(this.singular + "_" + action, id);
-        } else {
-            this.application.go(this.singular + "_" + action);
-        }
-    },
-    list: function() {
-        this.it = this.rest("GET",this.url());
-        this.application.render(this.it);
-    },
     fields_change: function() {
-        this.it = this.rest("OPTIONS",this.url(), this.fields_request());
+        this.it = this.rest("OPTIONS","api/example", this.fields_request());
         this.application.render(this.it);
     },
-    field_value(field, value, values) {
+    field_value: function(field, value, values) {
         for (var option = 0; option < field.options.length; option++) {
             if (value == field.options[option]) {
                 if (Array.isArray(values)) {
@@ -76,11 +50,12 @@ DRApp.controller("Base",null,{
             var full_name = prefix.concat(field.name).join('-').replace(/\./g, '-');
             if (field.readonly) {
                 continue
-            } else if (field.options) {
+            } else if (field.options && field.style != "select") {
                 if (field.multi) {
                     values[field.name] = [];
+                    var that = this;
                     $("input[name='" + full_name + "']:checked").each(function () {
-                        this.field_value(field, $(this).val(), values[field.name]);
+                        that.field_value(field, $(this).val(), values[field.name]);
                     });
                 } else {
                     this.field_value(field, $("input[name='" + full_name+ "']:checked").val(), values);
@@ -96,44 +71,21 @@ DRApp.controller("Base",null,{
     },
     fields_request: function() {
         var request = {};
-        request[this.singular] = this.fields_values();
+        request['values'] = this.fields_values();
         return request;
     },
     create: function() {
-        this.it = this.rest("OPTIONS",this.url());
+        this.it = this.rest("OPTIONS","api/example");
         this.application.render(this.it);
     },
     create_save: function() {
         var request = this.fields_request();
-        this.it = this.rest("OPTIONS",this.url(), request);
-        if (this.it.hasOwnProperty('errors')) {
+        this.it = this.rest("OPTIONS","api/example", request);
+        if (this.it.errors && this.it.errors.length) {
             this.application.render(this.it);
         } else {
-            this.route("retrieve", this.rest("POST",this.url(), request)[this.singular].id);
-        }
-    },
-    retrieve: function() {
-        this.it = this.rest("OPTIONS",this.id_url());
-        this.application.render(this.it);
-    },
-    update: function() {
-        this.it = this.rest("OPTIONS",this.id_url());
-        this.application.render(this.it);
-    },
-    update_save: function() {
-        var request = this.fields_request();
-        this.it = this.rest("OPTIONS",this.id_url(), request);
-        if (this.it.hasOwnProperty('errors')) {
             this.application.render(this.it);
-        } else {
-            this.rest("PATCH",this.id_url(), request);
-            this.route("retrieve", this.application.current.path.id);
-        }
-    },
-    delete: function() {
-        if (confirm("Are you sure?")) {
-            this.rest("DELETE", this.id_url());
-            this.route("list");
+            alert(JSON.stringify(this.rest("POST","api/example", request), null, 2));
         }
     }
 });
@@ -144,10 +96,7 @@ DRApp.partial("Header",DRApp.load("header"));
 DRApp.partial("Form",DRApp.load("form"));
 DRApp.partial("Footer",DRApp.load("footer"));
 
-DRApp.template("Home",DRApp.load("home"),null,DRApp.partials);
 DRApp.template("Fields",DRApp.load("fields"),null,DRApp.partials);
 DRApp.template("Create",DRApp.load("create"),null,DRApp.partials);
-DRApp.template("Retrieve",DRApp.load("retrieve"),null,DRApp.partials);
-DRApp.template("Update",DRApp.load("update"),null,DRApp.partials);
 
-DRApp.route("home","/","Home","Base","home");
+DRApp.route("home","/","Create","Base","create");

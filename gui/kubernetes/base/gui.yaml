@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: gui
   namespace: opengui
   labels:
-    app: api
+    app: gui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api
+      app: gui
   template:
     metadata:
       labels:
-        app: api
+        app: gui
     spec:
       containers:
-      - name: api
-        image: opengui-api
+      - name: gui
+        image: opengui-gui
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -25,25 +25,25 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
           httpGet:
-            path: /health
+            path: /api/health
             port: 80
         livenessProbe:
           initialDelaySeconds: 5
           periodSeconds: 5
           httpGet:
-            path: /health
+            path: /api/health
             port: 80
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: api
+  name: www
   namespace: opengui
   labels:
-    app: api
+    app: gui
 spec:
   selector:
-    app: api
+    app: gui
   type: ClusterIP
   ports:
   - name: http

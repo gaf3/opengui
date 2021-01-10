@@ -46,6 +46,8 @@ class Example(flask_restful.Resource):
         This builds the fields object dynamically
         """
 
+        # Create a single multi select field
+
         fields = opengui.Fields(
             values=values,
             fields=[
@@ -62,12 +64,16 @@ class Example(flask_restful.Resource):
             ]
         )
 
+        # If they select textarea, add it
+
         if "textarea" in (fields["types"].value or []):
             fields.append({
                 "name": "people",
                 "style": "textarea"
             })
             fields.ready = True
+
+        # If they selected option, add a format, then check what format they selected
 
         if "options" in (fields["types"].value or []):
             fields.append({
@@ -90,6 +96,8 @@ class Example(flask_restful.Resource):
                 "style": fields["style"].value
             })
             fields.ready = True
+
+        # If they add subfields, add two, and make the second optional
 
         if "fields" in (fields["types"].value or []):
             fields.append({
@@ -116,7 +124,7 @@ class Example(flask_restful.Resource):
 
         fields = self.fields((flask.request.json or {}).get("values"))
 
-        field.validate()
+        fields.validate()
 
         return fields.to_dict(), 200
 
@@ -125,9 +133,11 @@ class Example(flask_restful.Resource):
         This is the endpoint to actual submit data
         """
 
-        fields = self.fields((flask.request.json or {}).get("values"))
+        values = (flask.request.json or {}).get("values")
 
-        if not field.validate():
+        fields = self.fields(values)
+
+        if not fields.validate():
             return fields.to_dict(), 400
 
-        return {"message": "created"}, 201
+        return {"message": "created", "values": values}, 201

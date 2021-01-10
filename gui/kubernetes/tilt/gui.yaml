@@ -1,12 +1,12 @@
 apiVersion: apps/v1
-kind: Job
+kind: Deployment
 metadata:
-  name: postgres
-  namespace: atd-sftp
+  name: gui
+  namespace: opengui
 spec:
   template:
     spec:
       containers:
-      - name: postgres
-        image: atd-sftp-api
+      - name: gui
+        image: opengui-gui
         imagePullPolicy: Never

@@ -1,6 +1,7 @@
 IMAGE=opengui
-VERSION=0.6
+VERSION=0.7.0
 ACCOUNT=gaf3
+TILT_PORT=27939
 VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/opengui.py \
 		-v ${PWD}/test_opengui.py:/opt/gaf3/test_opengui.py \
 		-v ${PWD}/setup.py:/opt/gaf3/setup.py
@@ -16,6 +17,18 @@ shell:
 test:
 	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
 
+up:
+	kubectx docker-desktop
+	tilt --port $(TILT_PORT) up
+
+down:
+	kubectx docker-desktop
+	tilt down
+
 tag:
-	-git tag -a "v$(VERSION)" -m "Version $(VERSION)"
+	-git tag -a $(VERSION) -m "Version $(VERSION)"
 	git push origin --tags
+
+untag:
+	-git tag -d $(VERSION)
+	git push origin ":refs/tags/$(VERSION)"
