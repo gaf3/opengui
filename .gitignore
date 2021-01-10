@@ -1,3 +1,4 @@
 
 *.pyc
 lib/opengui.egg-info/PKG-INFO
+dep/

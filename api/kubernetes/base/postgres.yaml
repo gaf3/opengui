@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres
+  namespace: atd-sftp
+spec:
+  backoffLimit: 12
+  template:
+    spec:
+      containers:
+      - name: postgres
+        image: atd-sftp-api
+        imagePullPolicy: Always
+        command: ["/opt/service/bin/sync.py"]
+        volumeMounts:
+        - name: secret
+          mountPath: "/opt/service/secret"
+          readOnly: true
+      volumes:
+      - name: secret
+        secret:
+          secretName: secret
+      restartPolicy: Never

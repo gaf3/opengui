@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Job
+metadata:
+  name: postgres
+  namespace: atd-sftp
+spec:
+  template:
+    spec:
+      containers:
+      - name: postgres
+        image: atd-sftp-api
+        imagePullPolicy: Never
