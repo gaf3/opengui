@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gui
+  namespace: opengui
+spec:
+  template:
+    spec:
+      containers:
+      - name: gui
+        image: opengui-gui
+        imagePullPolicy: Never

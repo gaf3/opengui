@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "gui",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:7971/",
+            "webRoot": "${workspaceFolder}/gui/www"
+        },
+        {
+            "name": "api",
+            "type": "python",
+            "request": "attach",
+            "port": 17939,
+            "host": "localhost",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/api",
+                    "remoteRoot": "/opt/service"
+                }
+            ]
+        }
+    ]
+}
