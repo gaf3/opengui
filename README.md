@@ -206,7 +206,7 @@ Universal [doTRoute.js](http://gaf3.github.io/dotroute/) [fields.html](gui/www/f
 
 Which looks like this:
 
-![OpenGUI Exmaple]{example.png}
+![OpenGUI Exmaple](example.png)
 
 If you're familer with Docker Desktop, Kubernetes, and Tilt `make up` and hit space.
 
