@@ -155,6 +155,10 @@ class TestField(unittest.TestCase):
                 field.errors.append("not sure")
 
         field = opengui.Field(name="i", validation=sure)
+        self.assertFalse(field.validate())
+        self.assertEqual(field.errors, ["missing value"])
+
+        field = opengui.Field(name="i", validation=sure)
         field.value = "sure"
         self.assertTrue(field.validate())
         field.value = "nope"

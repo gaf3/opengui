@@ -99,11 +99,12 @@ class Field:
             self.errors.append("invalid value '%s'" % self.value)
 
         if self.validation:
-            if self.value is not None and isinstance(self.validation, str):
-                if not re.match(self.validation, self.value):
-                    self.errors.append("must match '%s'" % self.validation)
-            else:
-                self.validation(self)
+            if self.value is not None:
+                if isinstance(self.validation, str):
+                    if not re.match(self.validation, self.value):
+                        self.errors.append("must match '%s'" % self.validation)
+                else:
+                    self.validation(self)
 
         return not self.errors
 
