@@ -3,6 +3,6 @@
 from setuptools import setup, find_packages
 setup(
     name="opengui",
-    version="0.8.0",
+    version="0.8.1",
     py_modules = ['opengui']
 )
