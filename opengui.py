@@ -153,6 +153,9 @@ class Field:
         if self.readonly:
             out["readonly"] = self.readonly
 
+        if isinstance(self.validation, str):
+            out["validation"] = self.validation
+
         if self.content:
             out.update({key: value for key, value in self.content.items() if key not in self.ATTRIBUTES})
 

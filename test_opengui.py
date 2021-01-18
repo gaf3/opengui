@@ -224,6 +224,7 @@ class TestField(unittest.TestCase):
             multi="functional",
             trigger="ed",
             readonly="yes",
+            validation="sure",
             content={"name": "nope", "label": "yep"},
             errors="whoops",
             fields=[{"name": "a"}]
@@ -239,6 +240,7 @@ class TestField(unittest.TestCase):
             "multi": "functional",
             "trigger": "ed",
             "readonly": "yes",
+            "validation": "sure",
             "label": "yep",
             "errors": "whoops",
             "fields": [{"name": "a"}]
