@@ -30,7 +30,7 @@ class TestField(unittest.TestCase):
         self.assertIsNone(field.original)
         self.assertIsNone(field.default)
         self.assertIsNone(field.options)
-        self.assertFalse(field.optional)
+        self.assertFalse(field.required)
         self.assertFalse(field.multi)
         self.assertFalse(field.trigger)
         self.assertFalse(field.readonly)
@@ -44,7 +44,7 @@ class TestField(unittest.TestCase):
             original="recipe",
             default="factory",
             options="family",
-            optional="pants",
+            required="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
@@ -59,7 +59,7 @@ class TestField(unittest.TestCase):
         self.assertEqual(field.original, "recipe")
         self.assertEqual(field.default, "factory")
         self.assertEqual(field.options, "family")
-        self.assertEqual(field.optional, "pants")
+        self.assertEqual(field.required, "pants")
         self.assertEqual(field.multi, "functional")
         self.assertEqual(field.trigger, "ed")
         self.assertEqual(field.readonly, "yes")
@@ -94,11 +94,11 @@ class TestField(unittest.TestCase):
 
     def test_validate(self):
 
-        field = opengui.Field(name="a")
+        field = opengui.Field(name="a", required=True)
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["missing value"])
 
-        field = opengui.Field(name="a", multi=True)
+        field = opengui.Field(name="a", multi=True, required=True)
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["missing value"])
 
@@ -127,16 +127,13 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["invalid values [0]"])
 
-        field = opengui.Field(name="c", options=[1,2], optional=True)
-        self.assertTrue(field.validate())
-
         field = opengui.Field(name="d", options=[1,2])
         field.value = 1
         self.assertTrue(field.validate())
 
         field = opengui.Field(name="e", fields=[
-            {"name": "f"},
-            {"name": "g"}
+            {"name": "f", "required": True},
+            {"name": "g", "required": True}
         ])
         self.assertFalse(field.validate())
         self.assertEqual(field["f"].errors, ["missing value"])
@@ -154,7 +151,7 @@ class TestField(unittest.TestCase):
             if field.value != "sure":
                 field.errors.append("not sure")
 
-        field = opengui.Field(name="i", validation=sure)
+        field = opengui.Field(name="i", required=True, validation=sure)
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["missing value"])
 
@@ -223,7 +220,7 @@ class TestField(unittest.TestCase):
             original="recipe",
             default="factory",
             options="family",
-            optional="pants",
+            required="pants",
             multi="functional",
             trigger="ed",
             readonly="yes",
@@ -238,7 +235,7 @@ class TestField(unittest.TestCase):
             "original": "recipe",
             "default": "factory",
             "options": "family",
-            "optional": "pants",
+            "required": "pants",
             "multi": "functional",
             "trigger": "ed",
             "readonly": "yes",
@@ -348,8 +345,8 @@ class TestFields(unittest.TestCase):
     def test_validate(self):
 
         fields = opengui.Fields(values={"e": 1}, fields=[
-            {"name": "f"},
-            {"name": "g"}
+            {"name": "f", "required": True},
+            {"name": "g", "required": True}
         ])
         self.assertFalse(fields.validate())
         self.assertFalse(fields.valid)
@@ -362,16 +359,16 @@ class TestFields(unittest.TestCase):
         self.assertEqual(fields.errors, ["unknown field 'e'"])
 
         fields = opengui.Fields(fields=[
-            {"name": "f"},
-            {"name": "g"}
+            {"name": "f", "required": True},
+            {"name": "g", "required": True}
         ])
         self.assertFalse(fields.validate())
         self.assertEqual(fields["f"].errors, ["missing value"])
         self.assertEqual(fields["g"].errors, ["missing value"])
 
         fields = opengui.Fields(values={"f": 1, "g": 2}, fields=[
-            {"name": "f"},
-            {"name": "g"}
+            {"name": "f", "required": True},
+            {"name": "g", "required": True}
         ])
         self.assertTrue(fields.validate())
         self.assertTrue(fields.valid)

@@ -15,7 +15,7 @@ class Field:
         "original",
         "default",
         "options",
-        "optional",
+        "required",
         "multi",
         "trigger",
         "readonly",
@@ -32,7 +32,7 @@ class Field:
         original=None,
         default=None,
         options=None,
-        optional=False,
+        required=False,
         multi=False,
         trigger=False,
         readonly=False,
@@ -47,7 +47,7 @@ class Field:
         self.original = original
         self.default = default
         self.options = options
-        self.optional = optional
+        self.required = required
         self.multi = multi
         self.trigger = trigger
         self.readonly = readonly
@@ -84,7 +84,7 @@ class Field:
             self.value = self.default
         if self.value is None and self.readonly:
             self.value = self.original
-        elif self.value is None and not self.optional:
+        elif self.value is None and self.required:
             self.errors.append("missing value")
         elif self.value is not None and self.multi and not isinstance(self.value,list):
             self.errors.append("multi requires list")
@@ -141,8 +141,8 @@ class Field:
         if self.options is not None:
             out["options"] = self.options
 
-        if self.optional:
-            out["optional"] = self.optional
+        if self.required:
+            out["required"] = self.required
 
         if self.multi:
             out["multi"] = self.multi
