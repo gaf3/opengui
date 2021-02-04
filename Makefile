@@ -1,5 +1,5 @@
 IMAGE=opengui
-VERSION=0.8.2
+VERSION=0.8.3
 ACCOUNT=gaf3
 TILT_PORT=27939
 VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/opengui.py \

@@ -146,10 +146,12 @@ class TestField(unittest.TestCase):
         self.assertFalse(field.validate())
         self.assertEqual(field.errors, ["must match 'yep'"])
 
-        def sure(field):
+        def sure(field, errors):
 
             if field.value != "sure":
-                field.errors.append("not sure")
+                errors.append("not sure")
+
+            return not errors
 
         field = opengui.Field(name="i", required=True, validation=sure)
         self.assertFalse(field.validate())
@@ -392,11 +394,12 @@ class TestFields(unittest.TestCase):
         self.assertTrue(fields.validate())
         self.assertTrue(fields.valid)
 
-        def unequal(fields):
+        def unequal(fields, errors):
 
             if fields["h"].value == fields["i"].value:
-                fields.valid = False
-                fields.errors.append("h and i must be unequal")
+                errors.append("h and i must be unequal")
+
+            return not errors
 
         fields = opengui.Fields(values={"h": 1, "i": 1}, fields=[
             {"name": "h"},
