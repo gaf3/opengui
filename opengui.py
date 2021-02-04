@@ -75,38 +75,43 @@ class Field:
     def extend(self, fields):
         self.fields.extend(fields)
 
-    def validate(self):
+    def validate(self, store=True):
 
         if self.fields:
-            return self.fields.validate()
+            return self.fields.validate(store)
+
+        errors = []
 
         if self.value is None and self.default:
             self.value = self.default
         if self.value is None and self.readonly:
             self.value = self.original
         elif self.value is None and self.required:
-            self.errors.append("missing value")
+            errors.append("missing value")
         elif self.value is not None and self.multi and not isinstance(self.value,list):
-            self.errors.append("multi requires list")
+            errors.append("multi requires list")
         elif self.value is not None and self.multi:
             invalid = []
             for value in self.values:
                 if value not in self.options:
                     invalid.append(value)
             if invalid:
-                self.errors.append("invalid values %s" % invalid)
+                errors.append("invalid values %s" % invalid)
         elif self.value is not None and self.options and self.value not in self.options:
-            self.errors.append("invalid value '%s'" % self.value)
+            errors.append("invalid value '%s'" % self.value)
 
         if self.validation:
             if self.value is not None:
                 if isinstance(self.validation, str):
                     if not re.match(self.validation, self.value):
-                        self.errors.append("must match '%s'" % self.validation)
+                        errors.append("must match '%s'" % self.validation)
                 else:
-                    self.validation(self)
+                    self.validation(self, errors)
 
-        return not self.errors
+        if store:
+            self.errors = errors
+
+        return not errors
 
     def __getattr__(self, attr):
         if attr == "values":
@@ -236,21 +241,28 @@ class Fields:
         for field in fields:
             self.append(**field)
 
-    def validate(self):
+    def validate(self, store=True):
+
+        valid = True
+        errors = []
 
         for name in self.values:
             if name not in self.names:
-                self.errors.append("unknown field '%s'" % name)
+                errors.append("unknown field '%s'" % name)
 
-        self.valid = not self.errors
+        valid = not errors
 
         for field in self.order:
-            self.valid = field.validate() and self.valid
+            valid = field.validate(store) and valid
 
         if self.validation is not None:
-            self.validation(self)
+            valid = self.validation(self, errors) and valid
 
-        return self.valid
+        if store:
+            self.valid = valid
+            self.errors = errors
+
+        return valid
 
     def __iter__(self):
         return iter(self.order)
