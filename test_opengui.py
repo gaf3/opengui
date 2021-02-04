@@ -178,6 +178,23 @@ class TestField(unittest.TestCase):
 
         self.assertEqual([subfield.name for subfield in field], ["b", "c"])
 
+    def test____contains__(self):
+
+        field = opengui.Field(name="a", fields=[
+            {"name": "b"},
+            {
+                "name": "c",
+                "fields": [
+                    {
+                        "name": "d"
+                    }
+                ]
+            }
+        ])
+
+        self.assertIn("b", field)
+        self.assertIn("d", field["c"])
+
     def test____getitem__(self):
 
         field = opengui.Field(name="a", fields=[
@@ -397,6 +414,23 @@ class TestFields(unittest.TestCase):
         ])
 
         self.assertEqual([field.name for field in fields], ["a", "b"])
+
+    def test____contains__(self):
+
+        fields = opengui.Fields(fields=[
+            {"name": "a"},
+            {
+                "name": "b",
+                "fields": [
+                    {
+                        "name": "c"
+                    }
+                ]
+            }
+        ])
+
+        self.assertIn("a", fields)
+        self.assertIn("c", fields["b"])
 
     def test____getitem__(self):
 

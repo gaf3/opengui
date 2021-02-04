@@ -1,5 +1,5 @@
 ACCOUNT=nandyio
-IMAGE=chore-gui
+IMAGE=opengui-gui
 VERSION?=0.4
 NAME=$(IMAGE)-$(ACCOUNT)
 
