@@ -117,6 +117,9 @@ class Field:
     def __iter__(self):
         return iter(self.fields)
 
+    def __contains__(self, key):
+        return self.fields and key in self.fields
+
     def __getitem__(self, key):
         return self.fields[key]
 
@@ -179,6 +182,7 @@ class Fields:
             originals = {}
 
         if errors is None:
+
             errors = []
 
         self.order = []
@@ -250,6 +254,10 @@ class Fields:
 
     def __iter__(self):
         return iter(self.order)
+
+    def __contains__(self, key):
+
+        return key in self.names
 
     def __getitem__(self, key):
 
