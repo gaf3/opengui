@@ -236,6 +236,26 @@ class Fields:
         self.order.append(field)
         self.names[field.name] = field
 
+    def update(self, *args, **kwargs):
+
+        if len(args) == 1:
+            kwargs = args[0]
+
+        if "name" not in kwargs:
+            raise MissingName("Missing name in %s" % kwargs)
+
+        if kwargs["name"] not in self.names:
+            self.append(**kwargs)
+            return
+
+        field = self.names[kwargs["name"]]
+
+        for key, value in kwargs.items():
+            if key in Field.ATTRIBUTES:
+                setattr(field, key, value)
+            else:
+                field.content[key] = value
+
     def extend(self, fields):
 
         for field in fields:

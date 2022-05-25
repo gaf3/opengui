@@ -350,6 +350,30 @@ class TestFields(unittest.TestCase):
         self.assertRaisesRegex(opengui.MissingName, "Missing name in {}", fields.append)
         self.assertRaisesRegex(opengui.DuplicateName, "Name a exists", fields.append, name="a")
 
+    def test_update(self):
+
+        fields = opengui.Fields(values={"a": 1}, originals={"a": 2})
+
+        fields.update({"name": "a", "label": "A"})
+
+        self.assertEqual(fields.order[0].name, "a")
+        self.assertEqual(fields.order[0].content["label"], "A")
+        self.assertEqual(fields.order[0].value, 1)
+        self.assertEqual(fields.order[0].original, 2)
+        self.assertEqual(fields.names["a"].content["label"], "A")
+
+        fields.update({"name": "a", "more": "B"})
+
+        self.assertEqual(len(fields.order), 1)
+        self.assertEqual(fields.order[0].name, "a")
+        self.assertEqual(fields.order[0].content["label"], "A")
+        self.assertEqual(fields.order[0].value, 1)
+        self.assertEqual(fields.order[0].original, 2)
+        self.assertEqual(fields.names["a"].content["label"], "A")
+        self.assertEqual(fields.names["a"].content["more"], "B")
+
+        self.assertRaisesRegex(opengui.MissingName, "Missing name in {}", fields.update)
+
     def test_extend(self):
 
         fields = opengui.Fields()
