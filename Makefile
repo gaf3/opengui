@@ -1,6 +1,6 @@
 IMAGE=opengui
 INSTALL=python:3.8.5-alpine3.12
-VERSION=0.8.7
+VERSION=0.8.8
 ACCOUNT=gaf3
 TILT_PORT=27939
 TTY=$(shell if tty -s; then echo "-it"; fi)
@@ -8,10 +8,10 @@ VOLUMES=-v ${PWD}/opengui.py:/opt/service/opengui.py \
 		-v ${PWD}/test_opengui.py:/opt/service/test_opengui.py \
 		-v ${PWD}/setup.py:/opt/service/setup.py
 PIPY=-v ${PWD}/LICENSE.txt:/opt/service/LICENSE.txt \
-	-v ${PWD}/README.md:/opt/service/README.md \
+	-v ${PWD}/PYPI.md:/opt/service/README.md \
 	-v ${HOME}/.pypirc:/opt/service/.pypirc
 
-.PHONY: build shell test up down setup tag untag pypi
+.PHONY: build shell test up down setup tag untag testpypi pypi
 
 build:
 	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
@@ -43,9 +43,12 @@ untag:
 	-git tag -d $(VERSION)
 	git push origin ":refs/tags/$(VERSION)"
 
+testpypi:
+	docker run $(TTY) $(VOLUMES) $(PIPY) gaf3/pypi sh -c "cd /opt/service && \
+	python -m build && \
+	python -m twine upload -r testpypi --config-file=.pypirc dist/*"
+
 pypi:
-	docker run $(TTY) $(VOLUMES) $(PIPY) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "apk add gcc libffi-dev musl-dev && \
-	pip install -U pip && \
-	pip install build twine && \
+	docker run $(TTY) $(VOLUMES) $(PIPY) gaf3/pypi sh -c "cd /opt/service && \
 	python -m build && \
 	python -m twine upload --config-file=.pypirc dist/*"
