@@ -1,12 +1,17 @@
 IMAGE=opengui
-VERSION=0.8.4
+INSTALL=python:3.8.5-alpine3.12
+VERSION=0.8.7
 ACCOUNT=gaf3
 TILT_PORT=27939
-VOLUMES=-v ${PWD}/opengui.py:/opt/gaf3/opengui.py \
-		-v ${PWD}/test_opengui.py:/opt/gaf3/test_opengui.py \
-		-v ${PWD}/setup.py:/opt/gaf3/setup.py
+TTY=$(shell if tty -s; then echo "-it"; fi)
+VOLUMES=-v ${PWD}/opengui.py:/opt/service/opengui.py \
+		-v ${PWD}/test_opengui.py:/opt/service/test_opengui.py \
+		-v ${PWD}/setup.py:/opt/service/setup.py
+PIPY=-v ${PWD}/LICENSE.txt:/opt/service/LICENSE.txt \
+	-v ${PWD}/README.md:/opt/service/README.md \
+	-v ${HOME}/.pypirc:/opt/service/.pypirc
 
-.PHONY: build shell test tag
+.PHONY: build shell test up down setup tag untag pypi
 
 build:
 	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
@@ -25,6 +30,11 @@ down:
 	kubectx docker-desktop
 	tilt down
 
+setup:
+	docker run $(TTY) $(VOLUMES) $(INSTALL) sh -c "cp -r /opt/service /opt/install && cd /opt/install/ && \
+	python setup.py install && \
+	python -m opengui"
+
 tag:
 	-git tag -a $(VERSION) -m "Version $(VERSION)"
 	git push origin --tags
@@ -32,3 +42,10 @@ tag:
 untag:
 	-git tag -d $(VERSION)
 	git push origin ":refs/tags/$(VERSION)"
+
+pypi:
+	docker run $(TTY) $(VOLUMES) $(PIPY) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "apk add gcc libffi-dev musl-dev && \
+	pip install -U pip && \
+	pip install build twine && \
+	python -m build && \
+	python -m twine upload --config-file=.pypirc dist/*"
