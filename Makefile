@@ -25,10 +25,10 @@ build:
 	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
 
 shell:
-	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh
+	docker run $(TTY) $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh
 
 test:
-	docker run -it $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
+	docker run $(TTY) $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
 
 lint:
 	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "pylint --rcfile=.pylintrc opengui.py"
