@@ -1,4 +1,4 @@
-sphinxter==0.1.3
+sphinxter==0.1.7
 ptvsd==4.3.2
 coverage==6.4.2
 pylint==2.14.5

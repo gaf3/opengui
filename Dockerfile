@@ -12,4 +12,4 @@ ADD opengui.py .
 ADD test_opengui.py .
 ADD setup.py .
 
-ENV PYTHONPATH "/opt/service/lib:${PYTHONPATH}"
+ENV PYTHONPATH="/opt/service/lib:${PYTHONPATH}"

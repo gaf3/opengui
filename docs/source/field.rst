@@ -177,8 +177,8 @@ opengui.Field
 
         Appends a field onto this Field's sub fields
 
-        :param args:
-        :param kwargs:
+        :param args: args
+        :param kwargs: kwargs
 
         **Usage**
 
@@ -188,7 +188,7 @@ opengui.Field
 
         Extens a field onto this Field's sub fields
 
-        :param fields:
+        :param fields: fields
 
         **Usage**
 
