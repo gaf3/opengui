@@ -1,6 +1,7 @@
 IMAGE=opengui
 INSTALL=python:3.8.5-alpine3.12
 VERSION?=$(shell cat VERSION)
+DEBUG_PORT=5678
 ACCOUNT=gaf3
 TILT_PORT=27939
 TTY=$(shell if tty -s; then echo "-it"; fi)
@@ -25,10 +26,13 @@ build:
 	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
 
 shell:
-	docker run $(TTY) $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh
+	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) $(ACCOUNT)/$(IMAGE):$(VERSION) sh
+
+debug:
+	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) -p 127.0.0.1:$(DEBUG_PORT):5678 $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m unittest -v test_opengui"
 
 test:
-	docker run $(TTY) $(VOLUMES) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
+	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "coverage run -m unittest -v test_opengui && coverage report -m"
 
 lint:
 	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "pylint --rcfile=.pylintrc opengui.py"

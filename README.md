@@ -5,7 +5,7 @@ Library for building dynamic forms, forms whose options and even fields change b
 
 This doesn't involve rendering dynamic forms, just making creating and altering the structures thereof.
 
-# Example
+# GUI Example
 
 Some Python code in [service.py](api/lig/service.py) that generate some basic field dynamically
 
@@ -211,6 +211,10 @@ Which looks like this:
 If you're familer with Docker Desktop, Kubernetes, and Tilt `make up` and hit space.
 
 Navigate to `http://localhost:7971/` and give it a whirl.
+
+# Cli Example
+
+Just took this from the
 
 # Documentation
 

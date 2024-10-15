@@ -89,7 +89,7 @@ usage: |
         # }
 """
 
-# pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-branches,inconsistent-return-statements
+# pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-branches,inconsistent-return-statements,too-many-nested-blocks
 
 import re
 
@@ -806,3 +806,211 @@ class Fields:
             out["ready"] = self.ready
 
         return out
+
+    def cli(self)->dict:
+        """
+        description: Returns dict of values from getting input from the cli
+        usage: |
+            Taken from its unittest::
+
+                @unittest.mock.patch("builtins.print")
+                @unittest.mock.patch("builtins.input")
+                def test_cli(self, mock_input, mock_print):
+
+                    fields = opengui.Fields(
+                        fields=[
+                            {
+                                "name": "basic",
+                                "description": "be basic",
+                                "default": "badass",
+                                "validation": "^bitch$"
+                            },
+                            {
+                                "name": "single",
+                                "options": ["yin", "yang"],
+                                "labels": {
+                                    "yin": "Yin",
+                                    "yang": "Yang"
+                                },
+                                "default": "yon"
+                            },
+                            {
+                                "name": "multiple",
+                                "multi": True,
+                                "options": ["fee", "fie", "foe", "fum"],
+                                "default": ["fun"]
+                            },
+                            {
+                                "name": "yah",
+                                "bool": True,
+                                "default": True
+                            },
+                            {
+                                "name": "sure",
+                                "bool": True
+                            },
+                            {
+                                "name": "nah",
+                                "bool": True
+                            }
+                        ]
+                    )
+
+                    mock_input.side_effect = [
+                        "",
+                        "bitch",
+                        "fish",
+                        "0",
+                        "3",
+                        "",
+                        "1",
+                        "fish 0 6",
+                        "",
+                        "1 3",
+                        "",
+                        "y",
+                        "n"
+                    ]
+
+                    self.assertEqual(fields.cli(), {
+                        "basic": "bitch",
+                        "single": "yin",
+                        "multiple": ["fee", "foe"],
+                        "yah": True,
+                        "sure": True,
+                        "nah": False
+                    })
+
+                    mock_print.assert_has_calls([
+                        unittest.mock.call("basic:"),
+                        unittest.mock.call("  be basic"),
+                        unittest.mock.call("  default: badass"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("must match '^bitch$'"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("single:"),
+                        unittest.mock.call("  default: yon"),
+                        unittest.mock.call("[1] Yin"),
+                        unittest.mock.call("[2] Yang"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("invalid choice: fish"),
+                        unittest.mock.call("[1] Yin"),
+                        unittest.mock.call("[2] Yang"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("invalid choice: 0"),
+                        unittest.mock.call("[1] Yin"),
+                        unittest.mock.call("[2] Yang"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("invalid choice: 3"),
+                        unittest.mock.call("[1] Yin"),
+                        unittest.mock.call("[2] Yang"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("invalid value 'yon'"),
+                        unittest.mock.call("[1] Yin"),
+                        unittest.mock.call("[2] Yang"),
+                        unittest.mock.call("enter value: "),
+                        unittest.mock.call("multiple:"),
+                        unittest.mock.call("  default: ['fun']"),
+                        unittest.mock.call("[1] fee"),
+                        unittest.mock.call("[2] fie"),
+                        unittest.mock.call("[3] foe"),
+                        unittest.mock.call("[4] fum"),
+                        unittest.mock.call("enter multiple values, separated by spaces: "),
+                        unittest.mock.call("invalid choices: ['fish', '0', '6']"),
+                        unittest.mock.call("[1] fee"),
+                        unittest.mock.call("[2] fie"),
+                        unittest.mock.call("[3] foe"),
+                        unittest.mock.call("[4] fum"),
+                        unittest.mock.call("enter multiple values, separated by spaces: "),
+                        unittest.mock.call("invalid values ['fun']"),
+                        unittest.mock.call("[1] fee"),
+                        unittest.mock.call("[2] fie"),
+                        unittest.mock.call("[3] foe"),
+                        unittest.mock.call("[4] fum"),
+                        unittest.mock.call("enter multiple values, separated by spaces: "),
+                    ])
+
+        """
+
+        values = {}
+
+        for field in self:
+
+            print(f"{field.name}:")
+
+            if "description" in field.content:
+                print(f"  {field.content['description']}")
+
+            if field.default is not None:
+                print(f"  default: {field.default}")
+
+            while True:
+
+                if field.options:
+
+                    labels = field.content.get("labels")
+
+                    for index, option in enumerate(field.options):
+
+                        print(f"[{index+1}] {labels[option] if labels else option}")
+
+                    if field.multi:
+                        print("enter multiple values, separated by spaces: ")
+
+                        value = input()
+
+                        if value:
+
+                            indexes = value.split()
+
+                            invalid = []
+                            for index in indexes:
+                                if not index.isdigit() or int(index) < 1 or int(index) > len(field.options):
+                                    invalid.append(index)
+
+                            if invalid:
+                                print(f"invalid choices: {invalid}")
+                                continue
+
+                            field.value = [field.options[int(index)-1] for index in indexes]
+
+                        else:
+
+                            field.value = field.default
+
+                    else:
+                        print("enter value: ")
+
+                        index = input()
+
+                        if index:
+
+                            if index.isdigit() and int(index) > 0 and int(index) <= len(field.options):
+                                field.value = field.options[int(index)-1]
+                            else:
+                                print(f"invalid choice: {index}")
+                                continue
+
+                        else:
+
+                            field.value = field.default
+
+                elif field.content.get("bool"):
+
+                    print("enter value y/n: ")
+                    value = input()
+                    field.value = value.lower() == 'y' if value else field.default
+
+                else:
+
+                    print("enter value: ")
+                    field.value = input() or field.default
+
+                if field.validate():
+                    values[field.name] = field.value
+                    break
+
+                for error in field.errors:
+                    print(error)
+
+        return values
