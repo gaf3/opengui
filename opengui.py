@@ -92,6 +92,7 @@ usage: |
 # pylint: disable=too-many-instance-attributes,too-many-arguments,too-many-branches,inconsistent-return-statements,too-many-nested-blocks
 
 import re
+import yaes
 
 class MissingName(Exception):
     """
@@ -459,15 +460,18 @@ class Fields:
     "type: callable"
     ready = None        # Whether ready overall
     "type: bool"
+    engine = None       # Yaes Engine to use for cli()
+    "type: bool"
 
     def __init__(self,
         values:dict=None,           # Field values to use, key by name
         originals:dict=None,        # Field orginal values to use, key by name
-        fields:'list[dict]'=None,     # Field to use in dict form, not instances
-        errors:'list[str]'=None,      # Overall errors
+        fields:'list[dict]'=None,   # Field to use in dict form, not instances
+        errors:'list[str]'=None,    # Overall errors
         valid:bool=None,            # Whether valid overall
         validation:callable=None,   # Function to use to validate across fields
-        ready:bool=None             # Whether ready overall
+        ready:bool=None   ,          # Whether ready overall
+        engine:yaes.Engine=None     # Yaes Engine to use for cli()
     ):
 
         if values is None:
@@ -488,6 +492,7 @@ class Fields:
         self.valid = valid
         self.validation = validation
         self.ready = ready
+        self.engine = engine or yaes.Engine()
 
         if fields is None:
             fields = []
@@ -807,6 +812,39 @@ class Fields:
 
         return out
 
+    def question(self, values)->Field:
+        """
+        description: Returns teh next question, transformed by yeas
+        usage: |
+            Taken from its unittest::
+
+                fields = opengui.Fields(
+                    fields=[
+                        {"name": "a", "label": "{{ lab }}", "stuff": "{[ things ]}"},
+                        {"name": "b"}
+                    ],
+                    errors=['boo'],
+                    valid=True,
+                    ready=False
+                )
+
+                values = {"lab": "A", "things": [1, 2, 3]}
+
+                self.assertEqual(fields.question(values).to_dict(), {
+                    "name": "a",
+                    "label": "A",
+                    "stuff": [1, 2, 3]
+                })
+        """
+
+        for field in Fields(values=values, fields=[
+            self.engine.transform(*field) for field in self.engine.each(self.to_dict()["fields"], values)
+        ]):
+            if field.name not in values:
+                return field
+
+        return None
+
     def cli(self)->dict:
         """
         description: Returns dict of values from getting input from the cli
@@ -817,7 +855,7 @@ class Fields:
                 @unittest.mock.patch("builtins.input")
                 def test_cli(self, mock_input, mock_print):
 
-                    fields = opengui.Fields(
+                    fields = opengui.Fields(\
                         fields=[
                             {
                                 "name": "basic",
@@ -934,7 +972,12 @@ class Fields:
 
         values = {}
 
-        for field in self:
+        while True:
+
+            field = self.question(values)
+
+            if field is None:
+                break
 
             print(f"{field.name}:")
 

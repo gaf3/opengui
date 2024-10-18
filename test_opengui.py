@@ -525,9 +525,25 @@ class TestFields(unittest.TestCase):
             "ready": False
         })
 
-class TestCi(unittest.TestCase):
+    def test_question(self):
 
-    maxDiff = None
+        fields = opengui.Fields(
+            fields=[
+                {"name": "a", "label": "{{ lab }}", "stuff": "{[ things ]}"},
+                {"name": "b"}
+            ],
+            errors=['boo'],
+            valid=True,
+            ready=False
+        )
+
+        values = {"lab": "A", "things": [1, 2, 3]}
+
+        self.assertEqual(fields.question(values).to_dict(), {
+            "name": "a",
+            "label": "A",
+            "stuff": [1, 2, 3]
+        })
 
     @unittest.mock.patch("builtins.print")
     @unittest.mock.patch("builtins.input")
@@ -568,7 +584,8 @@ class TestCi(unittest.TestCase):
                 {
                     "name": "nah",
                     "bool": True
-                }
+                },
+
             ]
         )
 
