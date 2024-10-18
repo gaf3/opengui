@@ -6,7 +6,7 @@ opengui.Fields
 
 .. currentmodule:: opengui
 
-.. class:: Fields(values: dict = None, originals: dict = None, fields: 'list[dict]' = None, errors: 'list[str]' = None, valid: bool = None, validation: <built-in function callable> = None, ready: bool = None)
+.. class:: Fields(values: dict = None, originals: dict = None, fields: 'list[dict]' = None, errors: 'list[str]' = None, valid: bool = None, validation: <built-in function callable> = None, ready: bool = None, engine: yaes.Engine = None)
 
     Class for creating and manipulating fields
 
@@ -24,6 +24,13 @@ opengui.Fields
     :type validation: callable
     :param ready: Whether ready overall
     :type ready: bool
+    :param engine: Yaes Engine to use for cli()
+    :type engine: Engine
+
+    .. attribute:: engine
+        :type: bool
+
+        Yaes Engine to use for cli()
 
     .. attribute:: errors
         :type: list[str]
@@ -184,8 +191,7 @@ opengui.Fields
             @unittest.mock.patch("builtins.input")
             def test_cli(self, mock_input, mock_print):
 
-                fields = opengui.Fields(
-                    fields=[
+                fields = opengui.Fields(                        fields=[
                         {
                             "name": "basic",
                             "description": "be basic",
@@ -321,6 +327,35 @@ opengui.Fields
             # "a"
             fields.order[1].name
             # "b"
+
+    .. method:: question(values) -> opengui.Field
+
+        Returns teh next question, transformed by yeas
+
+        :param values: values
+        :rtype: Field
+
+        **Usage**
+
+        Taken from its unittest::
+
+            fields = opengui.Fields(
+                fields=[
+                    {"name": "a", "label": "{{ lab }}", "stuff": "{[ things ]}"},
+                    {"name": "b"}
+                ],
+                errors=['boo'],
+                valid=True,
+                ready=False
+            )
+
+            values = {"lab": "A", "things": [1, 2, 3]}
+
+            self.assertEqual(fields.question(values).to_dict(), {
+                "name": "a",
+                "label": "A",
+                "stuff": [1, 2, 3]
+            })
 
     .. method:: to_dict() -> dict
 
