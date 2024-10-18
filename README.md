@@ -332,7 +332,7 @@ mock_print.assert_has_calls([
 ])
 ```
 
-And questions uses a [yaes.Engine](https://yaes.readthedocs.io/en/latest/) for transformaton:
+And fields use [yaes.Engine](https://yaes.readthedocs.io/en/latest/) for transformaton each time a question is asked:
 
 ```python
 fields = opengui.Fields(
