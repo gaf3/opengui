@@ -16,6 +16,9 @@ setup(
     name="opengui",
     version=version,
     py_modules = ['opengui'],
+    install_requires=[
+        'yaes>=0.2.2'
+    ],
     url=f"https://opengui.readthedocs.io/en/{version}/",
     download_url="https://github.com/gaf3/opengui",
     author="Gaffer Fitch",
