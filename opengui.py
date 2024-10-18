@@ -820,7 +820,7 @@ class Fields:
 
                 fields = opengui.Fields(
                     fields=[
-                        {"name": "a", "label": "{{ lab }}", "stuff": "{[ things ]}"},
+                        {"name": "a", "label": "{{ lab }}", "stuff": "{[ {{ people }} ]}"},
                         {"name": "b"}
                     ],
                     errors=['boo'],
@@ -828,7 +828,7 @@ class Fields:
                     ready=False
                 )
 
-                values = {"lab": "A", "things": [1, 2, 3]}
+                values = {"lab": "A", "people": "things", "things": [1, 2, 3]}
 
                 self.assertEqual(fields.question(values).to_dict(), {
                     "name": "a",
