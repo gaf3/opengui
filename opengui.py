@@ -812,7 +812,9 @@ class Fields:
 
         return out
 
-    def question(self, values)->Field:
+    def question(self,
+        values:dict # Values to use for transformation
+    )->Field:
         """
         description: Returns teh next question, transformed by yeas
         usage: |
@@ -845,7 +847,9 @@ class Fields:
 
         return None
 
-    def cli(self)->dict:
+    def cli(self,
+        values:dict=None # Values to use for transformation
+    )->dict:
         """
         description: Returns dict of values from getting input from the cli
         usage: |
@@ -970,7 +974,7 @@ class Fields:
 
         """
 
-        values = {}
+        values = values or {}
 
         while True:
 
