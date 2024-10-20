@@ -569,7 +569,7 @@ class TestFields(unittest.TestCase):
                 {
                     "name": "multiple",
                     "multi": True,
-                    "options": ["fee", "fie", "foe", "fum"],
+                    "options": "{[ fs ]}",
                     "default": ["fun"]
                 },
                 {
@@ -584,8 +584,7 @@ class TestFields(unittest.TestCase):
                 {
                     "name": "nah",
                     "bool": True
-                },
-
+                }
             ]
         )
 
@@ -605,13 +604,18 @@ class TestFields(unittest.TestCase):
             "n"
         ]
 
-        self.assertEqual(fields.cli(), {
+        values = {
+            "fs": ["fee", "fie", "foe", "fum"]
+        }
+
+        self.assertEqual(fields.cli(values), {
             "basic": "bitch",
             "single": "yin",
             "multiple": ["fee", "foe"],
             "yah": True,
             "sure": True,
-            "nah": False
+            "nah": False,
+            "fs": ["fee", "fie", "foe", "fum"]
         })
 
         mock_print.assert_has_calls([

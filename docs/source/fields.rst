@@ -177,10 +177,12 @@ opengui.Fields
             fields.order[0].original
             # 2
 
-    .. method:: cli() -> dict
+    .. method:: cli(values: dict = None) -> dict
 
         Returns dict of values from getting input from the cli
 
+        :param values: Values to use for transformation
+        :type values: dict
         :rtype: dict
 
         **Usage**
@@ -328,11 +330,12 @@ opengui.Fields
             fields.order[1].name
             # "b"
 
-    .. method:: question(values) -> opengui.Field
+    .. method:: question(values: dict) -> opengui.Field
 
         Returns teh next question, transformed by yeas
 
-        :param values: values
+        :param values: Values to use for transformation
+        :type values: dict
         :rtype: Field
 
         **Usage**
