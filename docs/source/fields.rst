@@ -193,7 +193,8 @@ opengui.Fields
             @unittest.mock.patch("builtins.input")
             def test_cli(self, mock_input, mock_print):
 
-                fields = opengui.Fields(                        fields=[
+                fields = opengui.Fields(
+                    fields=[
                         {
                             "name": "basic",
                             "description": "be basic",
@@ -212,7 +213,7 @@ opengui.Fields
                         {
                             "name": "multiple",
                             "multi": True,
-                            "options": ["fee", "fie", "foe", "fum"],
+                            "options": "{[ fs ]}",
                             "default": ["fun"]
                         },
                         {
@@ -247,13 +248,18 @@ opengui.Fields
                     "n"
                 ]
 
-                self.assertEqual(fields.cli(), {
+                values = {
+                    "fs": ["fee", "fie", "foe", "fum"]
+                }
+
+                self.assertEqual(fields.cli(values), {
                     "basic": "bitch",
                     "single": "yin",
                     "multiple": ["fee", "foe"],
                     "yah": True,
                     "sure": True,
-                    "nah": False
+                    "nah": False,
+                    "fs": ["fee", "fie", "foe", "fum"]
                 })
 
                 mock_print.assert_has_calls([
