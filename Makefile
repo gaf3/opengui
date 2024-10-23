@@ -8,7 +8,9 @@ TTY=$(shell if tty -s; then echo "-it"; fi)
 VOLUMES=-v ${PWD}/opengui.py:/opt/service/opengui.py \
 		-v ${PWD}/test_opengui.py:/opt/service/test_opengui.py \
 		-v ${PWD}/.pylintrc:/opt/service/.pylintrc \
+		-v ${PWD}/bin:/opt/service/bin \
 		-v ${PWD}/VERSION:/opt/service/VERSION \
+		-v ${PWD}/VERSION:/opt/service/README.md \
 		-v ${PWD}/setup.py:/opt/service/setup.py \
 		-v ${PWD}/docs:/opt/service/docs \
 		-v ${PWD}/docs.py:/opt/service/docs.py
@@ -20,7 +22,7 @@ PYPI=-v ${PWD}/LICENSE.txt:/opt/service/LICENSE.txt \
 	-v ${PWD}/PYPI.md:/opt/service/README.md \
 	-v ${HOME}/.pypirc:/opt/service/.pypirc
 
-.PHONY: build shell test lint up down setup tag untag testpypi pypi sphinx docs html clean rtd
+.PHONY: build shell test lint up down cli setup tag untag testpypi pypi sphinx docs html clean rtd
 
 build:
 	docker build . -t $(ACCOUNT)/$(IMAGE):$(VERSION)
@@ -44,6 +46,9 @@ up:
 down:
 	kubectx docker-desktop
 	tilt down
+
+cli:
+	docker run $(TTY) $(VOLUMES) $(ENVIRONMENT) $(ACCOUNT)/$(IMAGE):$(VERSION) sh -c "python bin/cli.py"
 
 setup:
 	docker run $(TTY) $(VOLUMES) $(PYPI) $(INSTALL) sh -c "cp -r /opt/service /opt/install && cd /opt/install/ && \
