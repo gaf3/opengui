@@ -1,8 +1,8 @@
 .. created by sphinxter
 .. default-domain:: py
 
-cli
-===
+opengui.Cli
+===========
 
 .. currentmodule:: opengui
 

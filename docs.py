@@ -5,5 +5,6 @@ import opengui
 
 sphinxter.Sphinxter(opengui, titles={
     "field": "opengui.Field",
-    "fields": "opengui.Fields"
-}, toctree=["self", "fields", "field"]).process()
+    "fields": "opengui.Fields",
+    "cli": "opengui.Cli"
+}, toctree=["self", "fields", "field", "cli"]).process()

@@ -12,6 +12,7 @@ opengui
     self
     fields
     field
+    cli
 
 .. module:: opengui
 
