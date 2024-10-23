@@ -636,7 +636,6 @@ class TestCli(unittest.TestCase):
             "n"
         ]
 
-
         self.assertEqual(cli.ask(), {
             "basic": "bitch",
             "single": "yin",
@@ -675,4 +674,18 @@ class TestCli(unittest.TestCase):
             unittest.mock.call('[2] fie'),
             unittest.mock.call('[3] foe'),
             unittest.mock.call('[4] fum')
+        ])
+
+        mock_input.assert_has_calls([
+            unittest.mock.call('basic: '),
+            unittest.mock.call('enter index - single: '),
+            unittest.mock.call('enter index - single: '),
+            unittest.mock.call('enter index - single: '),
+            unittest.mock.call('enter index - single: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+            unittest.mock.call('enter value y/n - yah: '),
+            unittest.mock.call('enter value y/n - sure: '),
+            unittest.mock.call('enter value y/n - nah: ')
         ])

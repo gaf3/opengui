@@ -217,119 +217,121 @@ Navigate to `http://localhost:7971/` and give it a whirl.
 Just took this from the from the unittests:
 
 ```python
-fields = opengui.Fields(
-    fields=[
-        {
-            "name": "basic",
-            "description": "be basic",
-            "default": "badass",
-            "validation": "^bitch$"
-        },
-        {
-            "name": "single",
-            "options": ["yin", "yang"],
-            "labels": {
-                "yin": "Yin",
-                "yang": "Yang"
+@unittest.mock.patch("builtins.print")
+@unittest.mock.patch("builtins.input")
+def test_ask(self, mock_input, mock_print):
+
+    cli = opengui.Cli(
+        fields=[
+            {
+                "name": "basic",
+                "description": "be basic",
+                "default": "badass",
+                "validation": "^bitch$"
             },
-            "default": "yon"
-        },
-        {
-            "name": "multiple",
-            "multi": True,
-            "options": ["fee", "fie", "foe", "fum"],
-            "default": ["fun"]
-        },
-        {
-            "name": "yah",
-            "bool": True,
-            "default": True
-        },
-        {
-            "name": "sure",
-            "bool": True
-        },
-        {
-            "name": "nah",
-            "bool": True
-        },
+            {
+                "name": "single",
+                "options": ["yin", "yang"],
+                "labels": {
+                    "yin": "Yin",
+                    "yang": "Yang"
+                },
+                "default": "yin"
+            },
+            {
+                "name": "multiple",
+                "multi": True,
+                "options": "{[ fs ]}",
+                "default": ["fun", "foe"]
+            },
+            {
+                "name": "yah",
+                "bool": True,
+                "default": True
+            },
+            {
+                "name": "sure",
+                "bool": True
+            },
+            {
+                "name": "nah",
+                "bool": True
+            }
+        ],
+        values={
+            "fs": ["fee", "fie", "foe", "fum"]
+        }
+    )
 
+    mock_input.side_effect = [
+        "",
+        "bitch",
+        "fish",
+        "0",
+        "3",
+        "1",
+        "fish 0 6",
+        "",
+        "1 3",
+        "",
+        "y",
+        "n"
     ]
-)
 
-mock_input.side_effect = [
-    "",
-    "bitch",
-    "fish",
-    "0",
-    "3",
-    "",
-    "1",
-    "fish 0 6",
-    "",
-    "1 3",
-    "",
-    "y",
-    "n"
-]
 
-self.assertEqual(fields.cli(), {
-    "basic": "bitch",
-    "single": "yin",
-    "multiple": ["fee", "foe"],
-    "yah": True,
-    "sure": True,
-    "nah": False
-})
+    self.assertEqual(cli.ask(), {
+        "basic": "bitch",
+        "single": "yin",
+        "multiple": ["fee", "foe"],
+        "yah": True,
+        "sure": True,
+        "nah": False,
+        "fs": ["fee", "fie", "foe", "fum"]
+    })
 
-mock_print.assert_has_calls([
-    unittest.mock.call("basic:"),
-    unittest.mock.call("  be basic"),
-    unittest.mock.call("  default: badass"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("must match '^bitch$'"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("single:"),
-    unittest.mock.call("  default: yon"),
-    unittest.mock.call("[1] Yin"),
-    unittest.mock.call("[2] Yang"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("invalid choice: fish"),
-    unittest.mock.call("[1] Yin"),
-    unittest.mock.call("[2] Yang"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("invalid choice: 0"),
-    unittest.mock.call("[1] Yin"),
-    unittest.mock.call("[2] Yang"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("invalid choice: 3"),
-    unittest.mock.call("[1] Yin"),
-    unittest.mock.call("[2] Yang"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("invalid value 'yon'"),
-    unittest.mock.call("[1] Yin"),
-    unittest.mock.call("[2] Yang"),
-    unittest.mock.call("enter value: "),
-    unittest.mock.call("multiple:"),
-    unittest.mock.call("  default: ['fun']"),
-    unittest.mock.call("[1] fee"),
-    unittest.mock.call("[2] fie"),
-    unittest.mock.call("[3] foe"),
-    unittest.mock.call("[4] fum"),
-    unittest.mock.call("enter multiple values, separated by spaces: "),
-    unittest.mock.call("invalid choices: ['fish', '0', '6']"),
-    unittest.mock.call("[1] fee"),
-    unittest.mock.call("[2] fie"),
-    unittest.mock.call("[3] foe"),
-    unittest.mock.call("[4] fum"),
-    unittest.mock.call("enter multiple values, separated by spaces: "),
-    unittest.mock.call("invalid values ['fun']"),
-    unittest.mock.call("[1] fee"),
-    unittest.mock.call("[2] fie"),
-    unittest.mock.call("[3] foe"),
-    unittest.mock.call("[4] fum"),
-    unittest.mock.call("enter multiple values, separated by spaces: "),
-])
+    mock_print.assert_has_calls([
+        unittest.mock.call('  be basic'),
+        unittest.mock.call("must match '^bitch$'"),
+        unittest.mock.call('[1] Yin'),
+        unittest.mock.call('[2] Yang'),
+        unittest.mock.call('invalid choice: fish'),
+        unittest.mock.call('[1] Yin'),
+        unittest.mock.call('[2] Yang'),
+        unittest.mock.call('invalid choice: 0'),
+        unittest.mock.call('[1] Yin'),
+        unittest.mock.call('[2] Yang'),
+        unittest.mock.call('invalid choice: 3'),
+        unittest.mock.call('[1] Yin'),
+        unittest.mock.call('[2] Yang'),
+        unittest.mock.call('[1] fee'),
+        unittest.mock.call('[2] fie'),
+        unittest.mock.call('[3] foe'),
+        unittest.mock.call('[4] fum'),
+        unittest.mock.call("invalid choices: ['fish', '0', '6']"),
+        unittest.mock.call('[1] fee'),
+        unittest.mock.call('[2] fie'),
+        unittest.mock.call('[3] foe'),
+        unittest.mock.call('[4] fum'),
+        unittest.mock.call("invalid values ['fun']"),
+        unittest.mock.call('[1] fee'),
+        unittest.mock.call('[2] fie'),
+        unittest.mock.call('[3] foe'),
+        unittest.mock.call('[4] fum')
+    ])
+
+    mock_input.assert_has_calls([
+        unittest.mock.call('basic: '),
+        unittest.mock.call('enter index - single: '),
+        unittest.mock.call('enter index - single: '),
+        unittest.mock.call('enter index - single: '),
+        unittest.mock.call('enter index - single: '),
+        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+        unittest.mock.call('enter value y/n - yah: '),
+        unittest.mock.call('enter value y/n - sure: '),
+        unittest.mock.call('enter value y/n - nah: ')
+    ])
 ```
 
 And fields use [yaes.Engine](https://yaes.readthedocs.io/en/latest/) for transformaton each time a question is asked:
