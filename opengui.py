@@ -1016,6 +1016,20 @@ class Cli:
                         unittest.mock.call('[3] foe'),
                         unittest.mock.call('[4] fum')
                     ])
+
+                    mock_input.assert_has_calls([
+                        unittest.mock.call('basic: '),
+                        unittest.mock.call('enter index - single: '),
+                        unittest.mock.call('enter index - single: '),
+                        unittest.mock.call('enter index - single: '),
+                        unittest.mock.call('enter index - single: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+                        unittest.mock.call('enter value y/n - yah: '),
+                        unittest.mock.call('enter value y/n - sure: '),
+                        unittest.mock.call('enter value y/n - nah: ')
+                    ])
         """
 
         while True:
@@ -1047,7 +1061,7 @@ class Cli:
 
                         value = self.input(
                             field,
-                            prompt=f"enter multiple indexes, separated by spaces - {field.mame}: ",
+                            prompt=f"enter multiple indexes, separated by spaces - {field.name}: ",
                             default=" ".join(defaults)
                         )
 
@@ -1077,7 +1091,7 @@ class Cli:
                             if field.default is not None and option == field.default:
                                 default = option
 
-                        index = self.input(field, prompt=f"enter index - {field.mame}: ", default=default)
+                        index = self.input(field, prompt=f"enter index - {field.name}: ", default=default)
 
                         if index:
 
@@ -1094,7 +1108,7 @@ class Cli:
                     if field.default is not None:
                         default = "y" if field.default else 'n'
 
-                    value = self.input(field, prompt=f"enter value y/n- {field.mame}: ", default=default)
+                    value = self.input(field, prompt=f"enter value y/n - {field.name}: ", default=default)
                     field.value = value.lower() == 'y' if value else field.default
 
                 else:
