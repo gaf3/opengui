@@ -10,7 +10,7 @@ VOLUMES=-v ${PWD}/opengui.py:/opt/service/opengui.py \
 		-v ${PWD}/.pylintrc:/opt/service/.pylintrc \
 		-v ${PWD}/bin:/opt/service/bin \
 		-v ${PWD}/VERSION:/opt/service/VERSION \
-		-v ${PWD}/VERSION:/opt/service/README.md \
+		-v ${PWD}/README.md:/opt/service/README.md \
 		-v ${PWD}/setup.py:/opt/service/setup.py \
 		-v ${PWD}/docs:/opt/service/docs \
 		-v ${PWD}/docs.py:/opt/service/docs.py
