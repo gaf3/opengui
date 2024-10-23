@@ -6,7 +6,7 @@ opengui.Fields
 
 .. currentmodule:: opengui
 
-.. class:: Fields(values: dict = None, originals: dict = None, fields: 'list[dict]' = None, errors: 'list[str]' = None, valid: bool = None, validation: <built-in function callable> = None, ready: bool = None, engine: yaes.Engine = None)
+.. class:: Fields(values: dict = None, originals: dict = None, fields: 'list[dict]' = None, errors: 'list[str]' = None, valid: bool = None, validation: <built-in function callable> = None, ready: bool = None)
 
     Class for creating and manipulating fields
 
@@ -24,13 +24,6 @@ opengui.Fields
     :type validation: callable
     :param ready: Whether ready overall
     :type ready: bool
-    :param engine: Yaes Engine to use for cli()
-    :type engine: Engine
-
-    .. attribute:: engine
-        :type: bool
-
-        Yaes Engine to use for cli()
 
     .. attribute:: errors
         :type: list[str]
@@ -177,140 +170,6 @@ opengui.Fields
             fields.order[0].original
             # 2
 
-    .. method:: cli(values: dict = None) -> dict
-
-        Returns dict of values from getting input from the cli
-
-        :param values: Values to use for transformation
-        :type values: dict
-        :rtype: dict
-
-        **Usage**
-
-        Taken from its unittest::
-
-            @unittest.mock.patch("builtins.print")
-            @unittest.mock.patch("builtins.input")
-            def test_cli(self, mock_input, mock_print):
-
-                fields = opengui.Fields(
-                    fields=[
-                        {
-                            "name": "basic",
-                            "description": "be basic",
-                            "default": "badass",
-                            "validation": "^bitch$"
-                        },
-                        {
-                            "name": "single",
-                            "options": ["yin", "yang"],
-                            "labels": {
-                                "yin": "Yin",
-                                "yang": "Yang"
-                            },
-                            "default": "yon"
-                        },
-                        {
-                            "name": "multiple",
-                            "multi": True,
-                            "options": "{[ fs ]}",
-                            "default": ["fun"]
-                        },
-                        {
-                            "name": "yah",
-                            "bool": True,
-                            "default": True
-                        },
-                        {
-                            "name": "sure",
-                            "bool": True
-                        },
-                        {
-                            "name": "nah",
-                            "bool": True
-                        }
-                    ]
-                )
-
-                mock_input.side_effect = [
-                    "",
-                    "bitch",
-                    "fish",
-                    "0",
-                    "3",
-                    "",
-                    "1",
-                    "fish 0 6",
-                    "",
-                    "1 3",
-                    "",
-                    "y",
-                    "n"
-                ]
-
-                values = {
-                    "fs": ["fee", "fie", "foe", "fum"]
-                }
-
-                self.assertEqual(fields.cli(values), {
-                    "basic": "bitch",
-                    "single": "yin",
-                    "multiple": ["fee", "foe"],
-                    "yah": True,
-                    "sure": True,
-                    "nah": False,
-                    "fs": ["fee", "fie", "foe", "fum"]
-                })
-
-                mock_print.assert_has_calls([
-                    unittest.mock.call("basic:"),
-                    unittest.mock.call("  be basic"),
-                    unittest.mock.call("  default: badass"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("must match '^bitch$'"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("single:"),
-                    unittest.mock.call("  default: yon"),
-                    unittest.mock.call("[1] Yin"),
-                    unittest.mock.call("[2] Yang"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("invalid choice: fish"),
-                    unittest.mock.call("[1] Yin"),
-                    unittest.mock.call("[2] Yang"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("invalid choice: 0"),
-                    unittest.mock.call("[1] Yin"),
-                    unittest.mock.call("[2] Yang"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("invalid choice: 3"),
-                    unittest.mock.call("[1] Yin"),
-                    unittest.mock.call("[2] Yang"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("invalid value 'yon'"),
-                    unittest.mock.call("[1] Yin"),
-                    unittest.mock.call("[2] Yang"),
-                    unittest.mock.call("enter value: "),
-                    unittest.mock.call("multiple:"),
-                    unittest.mock.call("  default: ['fun']"),
-                    unittest.mock.call("[1] fee"),
-                    unittest.mock.call("[2] fie"),
-                    unittest.mock.call("[3] foe"),
-                    unittest.mock.call("[4] fum"),
-                    unittest.mock.call("enter multiple values, separated by spaces: "),
-                    unittest.mock.call("invalid choices: ['fish', '0', '6']"),
-                    unittest.mock.call("[1] fee"),
-                    unittest.mock.call("[2] fie"),
-                    unittest.mock.call("[3] foe"),
-                    unittest.mock.call("[4] fum"),
-                    unittest.mock.call("enter multiple values, separated by spaces: "),
-                    unittest.mock.call("invalid values ['fun']"),
-                    unittest.mock.call("[1] fee"),
-                    unittest.mock.call("[2] fie"),
-                    unittest.mock.call("[3] foe"),
-                    unittest.mock.call("[4] fum"),
-                    unittest.mock.call("enter multiple values, separated by spaces: "),
-                ])
-
     .. method:: extend(fields: 'list[dict]')
 
         Adds a list of fields
@@ -335,36 +194,6 @@ opengui.Fields
             # "a"
             fields.order[1].name
             # "b"
-
-    .. method:: question(values: dict) -> opengui.Field
-
-        Returns teh next question, transformed by yeas
-
-        :param values: Values to use for transformation
-        :type values: dict
-        :rtype: Field
-
-        **Usage**
-
-        Taken from its unittest::
-
-            fields = opengui.Fields(
-                fields=[
-                    {"name": "a", "label": "{{ lab }}", "stuff": "{[ {{ people }} ]}"},
-                    {"name": "b"}
-                ],
-                errors=['boo'],
-                valid=True,
-                ready=False
-            )
-
-            values = {"lab": "A", "people": "things", "things": [1, 2, 3]}
-
-            self.assertEqual(fields.question(values).to_dict(), {
-                "name": "a",
-                "label": "A",
-                "stuff": [1, 2, 3]
-            })
 
     .. method:: to_dict() -> dict
 

@@ -10,6 +10,7 @@ RUN pip install -r requirements.txt
 
 ADD opengui.py .
 ADD test_opengui.py .
+ADD bin bin
 ADD setup.py .
 
 ENV PYTHONPATH="/opt/service/lib:${PYTHONPATH}"

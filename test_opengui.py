@@ -525,21 +525,51 @@ class TestFields(unittest.TestCase):
             "ready": False
         })
 
+class TestCli(unittest.TestCase):
+
+    maxDiff = None
+
+    def test___init__(self):
+
+        cli = opengui.Cli(values="a", fields="b", engine="c")
+
+        self.assertEqual(cli.values, "a")
+        self.assertEqual(cli.fields, "b")
+        self.assertEqual(cli.engine, "c")
+
+    @unittest.mock.patch("builtins.input")
+    @unittest.mock.patch("readline.set_pre_input_hook")
+    def test_input(self, mock_hook, mock_input):
+
+        field = opengui.Field(name="a")
+
+        mock_input.return_value = "b"
+
+        cli = opengui.Cli()
+
+        self.assertEqual(cli.input(field), "b")
+
+        mock_input.assert_has_calls([
+            unittest.mock.call("a: "),
+        ])
+
+        self.assertEqual(cli.input(field, "c: "), "b")
+
+        mock_input.assert_has_calls([
+            unittest.mock.call("c: "),
+        ])
+
     def test_question(self):
 
-        fields = opengui.Fields(
+        cli = opengui.Cli(
             fields=[
                 {"name": "a", "label": "{{ lab }}", "stuff": "{[ {{ people }} ]}"},
                 {"name": "b"}
             ],
-            errors=['boo'],
-            valid=True,
-            ready=False
+            values={"lab": "A", "people": "things", "things": [1, 2, 3]}
         )
 
-        values = {"lab": "A", "people": "things", "things": [1, 2, 3]}
-
-        self.assertEqual(fields.question(values).to_dict(), {
+        self.assertEqual(cli.question().to_dict(), {
             "name": "a",
             "label": "A",
             "stuff": [1, 2, 3]
@@ -547,9 +577,9 @@ class TestFields(unittest.TestCase):
 
     @unittest.mock.patch("builtins.print")
     @unittest.mock.patch("builtins.input")
-    def test_cli(self, mock_input, mock_print):
+    def test_ask(self, mock_input, mock_print):
 
-        fields = opengui.Fields(
+        cli = opengui.Cli(
             fields=[
                 {
                     "name": "basic",
@@ -564,13 +594,13 @@ class TestFields(unittest.TestCase):
                         "yin": "Yin",
                         "yang": "Yang"
                     },
-                    "default": "yon"
+                    "default": "yin"
                 },
                 {
                     "name": "multiple",
                     "multi": True,
                     "options": "{[ fs ]}",
-                    "default": ["fun"]
+                    "default": ["fun", "foe"]
                 },
                 {
                     "name": "yah",
@@ -585,7 +615,10 @@ class TestFields(unittest.TestCase):
                     "name": "nah",
                     "bool": True
                 }
-            ]
+            ],
+            values={
+                "fs": ["fee", "fie", "foe", "fum"]
+            }
         )
 
         mock_input.side_effect = [
@@ -594,7 +627,6 @@ class TestFields(unittest.TestCase):
             "fish",
             "0",
             "3",
-            "",
             "1",
             "fish 0 6",
             "",
@@ -604,11 +636,8 @@ class TestFields(unittest.TestCase):
             "n"
         ]
 
-        values = {
-            "fs": ["fee", "fie", "foe", "fum"]
-        }
 
-        self.assertEqual(fields.cli(values), {
+        self.assertEqual(cli.ask(), {
             "basic": "bitch",
             "single": "yin",
             "multiple": ["fee", "foe"],
@@ -619,50 +648,31 @@ class TestFields(unittest.TestCase):
         })
 
         mock_print.assert_has_calls([
-            unittest.mock.call("basic:"),
-            unittest.mock.call("  be basic"),
-            unittest.mock.call("  default: badass"),
-            unittest.mock.call("enter value: "),
+            unittest.mock.call('  be basic'),
             unittest.mock.call("must match '^bitch$'"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("single:"),
-            unittest.mock.call("  default: yon"),
-            unittest.mock.call("[1] Yin"),
-            unittest.mock.call("[2] Yang"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("invalid choice: fish"),
-            unittest.mock.call("[1] Yin"),
-            unittest.mock.call("[2] Yang"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("invalid choice: 0"),
-            unittest.mock.call("[1] Yin"),
-            unittest.mock.call("[2] Yang"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("invalid choice: 3"),
-            unittest.mock.call("[1] Yin"),
-            unittest.mock.call("[2] Yang"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("invalid value 'yon'"),
-            unittest.mock.call("[1] Yin"),
-            unittest.mock.call("[2] Yang"),
-            unittest.mock.call("enter value: "),
-            unittest.mock.call("multiple:"),
-            unittest.mock.call("  default: ['fun']"),
-            unittest.mock.call("[1] fee"),
-            unittest.mock.call("[2] fie"),
-            unittest.mock.call("[3] foe"),
-            unittest.mock.call("[4] fum"),
-            unittest.mock.call("enter multiple values, separated by spaces: "),
+            unittest.mock.call('[1] Yin'),
+            unittest.mock.call('[2] Yang'),
+            unittest.mock.call('invalid choice: fish'),
+            unittest.mock.call('[1] Yin'),
+            unittest.mock.call('[2] Yang'),
+            unittest.mock.call('invalid choice: 0'),
+            unittest.mock.call('[1] Yin'),
+            unittest.mock.call('[2] Yang'),
+            unittest.mock.call('invalid choice: 3'),
+            unittest.mock.call('[1] Yin'),
+            unittest.mock.call('[2] Yang'),
+            unittest.mock.call('[1] fee'),
+            unittest.mock.call('[2] fie'),
+            unittest.mock.call('[3] foe'),
+            unittest.mock.call('[4] fum'),
             unittest.mock.call("invalid choices: ['fish', '0', '6']"),
-            unittest.mock.call("[1] fee"),
-            unittest.mock.call("[2] fie"),
-            unittest.mock.call("[3] foe"),
-            unittest.mock.call("[4] fum"),
-            unittest.mock.call("enter multiple values, separated by spaces: "),
+            unittest.mock.call('[1] fee'),
+            unittest.mock.call('[2] fie'),
+            unittest.mock.call('[3] foe'),
+            unittest.mock.call('[4] fum'),
             unittest.mock.call("invalid values ['fun']"),
-            unittest.mock.call("[1] fee"),
-            unittest.mock.call("[2] fie"),
-            unittest.mock.call("[3] foe"),
-            unittest.mock.call("[4] fum"),
-            unittest.mock.call("enter multiple values, separated by spaces: "),
+            unittest.mock.call('[1] fee'),
+            unittest.mock.call('[2] fie'),
+            unittest.mock.call('[3] foe'),
+            unittest.mock.call('[4] fum')
         ])
