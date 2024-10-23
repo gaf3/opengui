@@ -19,8 +19,7 @@ ENVIRONMENT=-e PYTHONDONTWRITEBYTECODE=1 \
 			-e test="python -m unittest -v" \
 			-e debug="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m unittest -v"
 PYPI=-v ${PWD}/LICENSE.txt:/opt/service/LICENSE.txt \
-	-v ${PWD}/PYPI.md:/opt/service/README.md \
-	-v ${HOME}/.pypirc:/opt/service/.pypirc
+  	 -v ${HOME}/.pypirc:/opt/service/.pypirc
 
 .PHONY: build shell test lint up down cli setup tag untag testpypi pypi sphinx docs html clean rtd
 
