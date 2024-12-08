@@ -17,7 +17,7 @@ setup(
     version=version,
     py_modules = ['opengui'],
     install_requires=[
-        'yaes>=0.2.3',
+        'yaes>=0.2.5',
         'MarkupSafe==2.1.5'
     ],
     url=f"https://opengui.readthedocs.io/en/{version}/",

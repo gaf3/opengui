@@ -252,7 +252,7 @@ class Field:
             errors.append("missing value")
         elif self.value is not None and self.multi and not isinstance(self.value,list):
             errors.append("multi requires list")
-        elif self.value is not None and self.multi:
+        elif self.value is not None and self.options and self.multi:
             invalid = []
             for value in self.values:
                 if value not in self.options:
@@ -937,10 +937,15 @@ class Cli:
                                 "default": "yin"
                             },
                             {
-                                "name": "multiple",
+                                "name": "multi-option",
                                 "multi": True,
                                 "options": "{[ fs ]}",
                                 "default": ["fun", "foe"]
+                            },
+                            {
+                                "name": "multi-text",
+                                "multi": True,
+                                "default": ["pun", "poe"]
                             },
                             {
                                 "name": "yah",
@@ -971,6 +976,7 @@ class Cli:
                         "fish 0 6",
                         "",
                         "1 3",
+                        "pun crow",
                         "",
                         "y",
                         "n"
@@ -980,7 +986,8 @@ class Cli:
                     self.assertEqual(cli.ask(), {
                         "basic": "bitch",
                         "single": "yin",
-                        "multiple": ["fee", "foe"],
+                        "multi-option": ["fee", "foe"],
+                        "multi-text": ["pun", "crow"],
                         "yah": True,
                         "sure": True,
                         "nah": False,
@@ -1023,9 +1030,10 @@ class Cli:
                         unittest.mock.call('enter index - single: '),
                         unittest.mock.call('enter index - single: '),
                         unittest.mock.call('enter index - single: '),
-                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
-                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
-                        unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                        unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                        unittest.mock.call('enter multiple values, separated by one or more spaces ,\'" etc - multi-text: '),
                         unittest.mock.call('enter value y/n - yah: '),
                         unittest.mock.call('enter value y/n - sure: '),
                         unittest.mock.call('enter value y/n - nah: ')
@@ -1113,7 +1121,17 @@ class Cli:
 
                 else:
 
-                    field.value = self.input(field)
+                    if field.multi:
+
+                        field.value = self.input(
+                            field,
+                            prompt=f"enter multiple values, separated by spaces - {field.name}: ",
+                            default=" ".join(field.default or [])
+                        ).strip().split()
+
+                    else:
+
+                        field.value = self.input(field)
 
                 if field.validate():
                     self.values[field.name] = field.value

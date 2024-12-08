@@ -132,6 +132,10 @@ class TestField(unittest.TestCase):
         field.value = 1
         self.assertTrue(field.validate())
 
+        field = opengui.Field(name="c", multi=True)
+        field.value = [0]
+        self.assertTrue(field.validate())
+
         field = opengui.Field(name="e", fields=[
             {"name": "f", "required": True},
             {"name": "g", "required": True}
@@ -597,10 +601,15 @@ class TestCli(unittest.TestCase):
                     "default": "yin"
                 },
                 {
-                    "name": "multiple",
+                    "name": "multi-option",
                     "multi": True,
                     "options": "{[ fs ]}",
                     "default": ["fun", "foe"]
+                },
+                {
+                    "name": "multi-text",
+                    "multi": True,
+                    "default": ["pun", "poe"]
                 },
                 {
                     "name": "yah",
@@ -631,15 +640,18 @@ class TestCli(unittest.TestCase):
             "fish 0 6",
             "",
             "1 3",
+            "pun crow",
             "",
             "y",
             "n"
         ]
 
+
         self.assertEqual(cli.ask(), {
             "basic": "bitch",
             "single": "yin",
-            "multiple": ["fee", "foe"],
+            "multi-option": ["fee", "foe"],
+            "multi-text": ["pun", "crow"],
             "yah": True,
             "sure": True,
             "nah": False,
@@ -682,9 +694,10 @@ class TestCli(unittest.TestCase):
             unittest.mock.call('enter index - single: '),
             unittest.mock.call('enter index - single: '),
             unittest.mock.call('enter index - single: '),
-            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
-            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
-            unittest.mock.call('enter multiple indexes, separated by spaces - multiple: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+            unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+            unittest.mock.call('enter multiple values, separated by spaces - multi-text: '),
             unittest.mock.call('enter value y/n - yah: '),
             unittest.mock.call('enter value y/n - sure: '),
             unittest.mock.call('enter value y/n - nah: ')
