@@ -64,10 +64,15 @@ opengui.Cli
                             "default": "yin"
                         },
                         {
-                            "name": "multiple",
+                            "name": "multi-option",
                             "multi": True,
                             "options": "{[ fs ]}",
                             "default": ["fun", "foe"]
+                        },
+                        {
+                            "name": "multi-text",
+                            "multi": True,
+                            "default": ["pun", "poe"]
                         },
                         {
                             "name": "yah",
@@ -98,6 +103,7 @@ opengui.Cli
                     "fish 0 6",
                     "",
                     "1 3",
+                    "pun crow",
                     "",
                     "y",
                     "n"
@@ -107,7 +113,8 @@ opengui.Cli
                 self.assertEqual(cli.ask(), {
                     "basic": "bitch",
                     "single": "yin",
-                    "multiple": ["fee", "foe"],
+                    "multi-option": ["fee", "foe"],
+                    "multi-text": ["pun", "crow"],
                     "yah": True,
                     "sure": True,
                     "nah": False,
@@ -142,6 +149,21 @@ opengui.Cli
                     unittest.mock.call('[2] fie'),
                     unittest.mock.call('[3] foe'),
                     unittest.mock.call('[4] fum')
+                ])
+
+                mock_input.assert_has_calls([
+                    unittest.mock.call('basic: '),
+                    unittest.mock.call('enter index - single: '),
+                    unittest.mock.call('enter index - single: '),
+                    unittest.mock.call('enter index - single: '),
+                    unittest.mock.call('enter index - single: '),
+                    unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                    unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                    unittest.mock.call('enter multiple indexes, separated by spaces - multi-option: '),
+                    unittest.mock.call('enter multiple values, separated by one or more spaces ,'" etc - multi-text: '),
+                    unittest.mock.call('enter value y/n - yah: '),
+                    unittest.mock.call('enter value y/n - sure: '),
+                    unittest.mock.call('enter value y/n - nah: ')
                 ])
 
     .. method:: input(field, prompt=None, default=None)
